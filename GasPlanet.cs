@@ -52,7 +52,7 @@ public class GasPlanet : MonoBehaviour
             {
                 gasResources.Add(Instantiate(gasResource, collision.transform.position, collision.transform.rotation));
                 gasResources[gasResources.Count - 1].transform.parent = collision.transform;
-                collision.GetComponent<HarvestResourcesAlien>().mineralResource = true; ;
+                collision.GetComponent<HarvestResourcesAlien>().gasResource = true; ;
                 collision.GetComponent<HarvestResourcesAlien>().taken = true;
                 resources--;
                 resourcesText.text = resources.ToString();

@@ -8,7 +8,7 @@ public class HarvestResources : MonoBehaviour
     public bool startHarvesting = false;
     public bool startReturn = false;
     public Vector3 dropPosition;
-    public Vector3 startingPos;
+    //public Vector3 startingPos;
     public bool stopHarvesting = false;
     public float harvestingVelocity = 1f;
     public float returnVelocity = 1f;
@@ -21,8 +21,8 @@ public class HarvestResources : MonoBehaviour
 
     private void Start()
     {
-        startingPos = transform.position;
-        dropPosition = startingPos;
+        //startingPos = transform.position;
+        //dropPosition = startingPos;
         manager = FindObjectOfType<Manager>();
         startHarvesting = true;
     }
@@ -36,12 +36,12 @@ public class HarvestResources : MonoBehaviour
             startHarvesting = false;
             startReturn = true;
         }
-        if (startReturn && taken)
+        if (startReturn /*&& taken*/)
         {
             transform.position = Vector2.MoveTowards(transform.position, dropPosition, returnVelocity * Time.deltaTime);
         }
-        else if (startReturn && !taken)
-            transform.position = Vector2.MoveTowards(transform.position, startingPos, harvestingVelocity * Time.deltaTime);
+        //else if (startReturn && !taken)
+        //    transform.position = Vector2.MoveTowards(transform.position, startingPos, harvestingVelocity * Time.deltaTime);
 
         if (transform.position == dropPosition && !planetOutOfResources)
         {
@@ -73,7 +73,9 @@ public class HarvestResources : MonoBehaviour
         {
             if (manager.selectedPlanetsToHarvest.Count > 0)
             {
-                SetPlanet(manager.HarvestingPlanetsDistributor());
+                SetPlanet(manager.HarvestingPlanetsDistributor(), 
+                    new Vector3(manager.humanPlanet.transform.position.x + Random.insideUnitCircle.x * (manager.humanPlanetScale / 2f),
+                    manager.humanPlanet.transform.position.y + Random.insideUnitCircle.y * (manager.humanPlanetScale / 2f), 0));
                 startReturn = false;
                 startHarvesting = true;
                 planetOutOfResources = false;
@@ -134,8 +136,9 @@ public class HarvestResources : MonoBehaviour
         //}
     }
 
-    public void SetPlanet(Vector3 coords)
+    public void SetPlanet(Vector3 coords, Vector3 myPlanet)
     {
+        dropPosition = myPlanet;
         coorPlanet = coords;
         planetOutOfResources = false;
         if (!startReturn || !taken)

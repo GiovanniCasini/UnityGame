@@ -8,7 +8,7 @@ public class HarvestResourcesAlien : MonoBehaviour
     public bool startHarvesting = false;
     public bool startReturn = false;
     public Vector3 dropPosition;
-    public Vector3 startingPos;
+    //public Vector3 startingPos;
     public bool stopHarvesting = false;
     public float harvestingVelocity = 1f;
     public float returnVelocity = 1f;
@@ -17,12 +17,13 @@ public class HarvestResourcesAlien : MonoBehaviour
     public bool planetOutOfResources = false;
     public bool waterResource = false;
     public bool mineralResource = false;
+    public bool gasResource = false;
 
     private void Start()
     {
-        startingPos = transform.position;
-        dropPosition = startingPos;
+        //startingPos = transform.position;
         manager = FindObjectOfType<Manager>();
+        //dropPosition = startingPos;
         startHarvesting = true;
     }
 
@@ -35,12 +36,12 @@ public class HarvestResourcesAlien : MonoBehaviour
             startHarvesting = false;
             startReturn = true;
         }
-        if (startReturn && taken)
+        if (startReturn /*&& taken*/)
         {
             transform.position = Vector2.MoveTowards(transform.position, dropPosition, returnVelocity * Time.deltaTime);
         }
-        else if (startReturn && !taken)
-            transform.position = Vector2.MoveTowards(transform.position, startingPos, harvestingVelocity * Time.deltaTime);
+        //else if (startReturn && !taken)
+        //    transform.position = Vector2.MoveTowards(transform.position, startingPos, harvestingVelocity * Time.deltaTime);
 
         if (transform.position == dropPosition && !planetOutOfResources)
         {
@@ -57,6 +58,12 @@ public class HarvestResourcesAlien : MonoBehaviour
                 taken = false;
                 Destroy(transform.GetChild(0).gameObject);
                 waterResource = false;
+            }
+            else if (taken && gasResource)
+            {
+                taken = false;
+                Destroy(transform.GetChild(0).gameObject);
+                gasResource = false;
             }
             // GetComponent<Collider2D>().enabled = true;
         }
@@ -78,6 +85,12 @@ public class HarvestResourcesAlien : MonoBehaviour
                 Destroy(transform.GetChild(0).gameObject);
                 waterResource = false;
             }
+            else if (taken && gasResource)
+            {
+                taken = false;
+                Destroy(transform.GetChild(0).gameObject);
+                gasResource = false;
+            }
             // GetComponent<Collider2D>().enabled = true;
             enabled = false;
         }
@@ -95,7 +108,7 @@ public class HarvestResourcesAlien : MonoBehaviour
             enabled = false;
         }
 
-        if (transform.position == startingPos && planetOutOfResources)
+        if (transform.position == dropPosition && planetOutOfResources)
         {
             // GetComponent<Collider2D>().enabled = true;
             GetComponent<Movement>().enabled = true;
@@ -106,8 +119,9 @@ public class HarvestResourcesAlien : MonoBehaviour
         }
     }
 
-    public void SetSetPlanet(Vector3 coords)
+    public void SetPlanet(Vector3 coords, Vector3 myPlanet)
     {
+        dropPosition = myPlanet;
         coorPlanet = coords;
         planetOutOfResources = false;
         if (!startReturn || !taken)
