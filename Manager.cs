@@ -5,70 +5,72 @@ using UnityEngine.UI;
 
 public class Manager : MonoBehaviour
 {
+    // HUMANS
+
+    public GameObject human;
+    public List<GameObject> humans = new List<GameObject>();
+    public int numStartingHumans = 2;
     public GameObject humanPlanet;
     public float humanPlanetScale;
 
-    public GameObject mineralResource;
-    public List<GameObject> mineralResources;
+    public List<GameObject> dottedLinesHarvestingHumans = new List<GameObject>();
+    public List<GameObject> dottedLinesAttackingHumans = new List<GameObject>();
 
-    public GameObject iceResource;
-    public List<GameObject> iceResources;
-
-    public GameObject gasResource;
-    public List<GameObject> gasResources;
-
-    public GameObject alienPlanet;
-    public List<GameObject> alienPlanets = new List<GameObject>();
-    // public float alienPlanetScale;
-
-    public GameObject human;
-    public List<GameObject> humans;
-    public int numStartingHumans = 2;
-    public GameObject alien;
-    public List<GameObject> aliens;
-    public List<List<GameObject>> aliensList = new List<List<GameObject>>();
-    public int numStartingAliens = 5;
-    public CircleFormation circleFormation = new CircleFormation();
-
-    public Slider slider;
-    public Slider harvestingSlider;
-    public Slider inFormationSlider;
-    public Slider mineralResourcesSlider;
-    public Slider iceResourcesSlider;
-    public Slider gasResourcesSlider;
-
-    public GameObject mineralPlanet;
-    public GameObject icePlanet;
-    public GameObject gasPlanet;
-    public List<GameObject> planetsToHarvest;
-    public List<GameObject> selectedPlanetsToHarvest;
-    private List<bool> isPlanetSelected;
+    public List<GameObject> planetsToHarvest = new List<GameObject>();
+    public List<GameObject> selectedPlanetsToHarvest = new List<GameObject>();
     public int indexPlanetToHarvest = -1;
 
-    public Button defOrAttButton;
+    // HUMANS ATTACK
+
     public Sprite shieldImage;
     public Sprite swordImage;
-    public bool defenseOrAttackButton = true;
+    public Button defOrAttButton;
+    public bool defenseOrAttackButton = true; // true=defense, false=attack
     public GameObject alienPlanetSelected;
     private bool isAlienPlanetSelected = false;
 
-    public GameObject dottedLine;
-    public List<GameObject> dottedLinesHarvestingHumans;
-    public List<GameObject> dottedLinesAttackingHumans;
+    // ALIENS
+
+    public GameObject alien;
+    public List<GameObject> aliens;
+    public List<List<GameObject>> aliensList = new List<List<GameObject>>(); // list of alien civilizations
+    public int numStartingAliens = 5;
+    public GameObject alienPlanet;
+    public List<GameObject> alienPlanets = new List<GameObject>(); // list of alien civilizations' planet, one for each alien civilization for now
 
     public List<List<GameObject>> dottedLinesHarvestingAliensList = new List<List<GameObject>>();
     public List<GameObject> dottedLinesHarvestingAliens;
     public List<List<GameObject>> selectedPlanetsToHarvestAlienList = new List<List<GameObject>>();
     public List<GameObject> selectedPlanetsToHarvestAlien;
 
-    public GameObject star;
+    // PLANETS
 
+    public GameObject mineralPlanet;
+    public GameObject icePlanet;
+    public GameObject gasPlanet;
+
+    // SLIDERS
+
+    public Slider slider;
+    public Slider harvestingSlider;
+    public Slider inFormationSlider;
+
+    public Slider mineralResourcesSlider;
+    public Slider iceResourcesSlider;
+    public Slider gasResourcesSlider;
+
+    // STUFF
+
+    public CircleFormation circleFormation = new CircleFormation();
+    public GameObject dottedLine;
+    public GameObject star;
     public GameObject bg_stars;
     public GameObject bg_starsFolder;
 
     void Start()
     {
-        humans = new List<GameObject>();
+        // HUMANS
+
         for (int i = 0; i < numStartingHumans; i++)
             humans.Add(Instantiate(human));
 
@@ -78,11 +80,9 @@ public class Manager : MonoBehaviour
         for (int i = 0; i < humans.Count; i++)
             humans[i].GetComponent<Movement>().radius = humanPlanetScale / 2f;
 
-        mineralResources = new List<GameObject>();
-        iceResources = new List<GameObject>();
-        gasResources = new List<GameObject>();
+        // ALIENS
 
-        for (int j = 0; j < 3; j++)
+        for (int j = 0; j < 3; j++) // one cycle for each alien civilization
         {
             aliens = new List<GameObject>();
             aliensList.Add(aliens);
@@ -93,20 +93,16 @@ public class Manager : MonoBehaviour
             for (int i = 0; i < numStartingAliens; i++)
             {
                 AddAlien(alienPlanets[j]);
-                // aliens[i].GetComponent<Movement>().radius = alienPlanetScale / 2f;
             }
             selectedPlanetsToHarvestAlienList.Add(selectedPlanetsToHarvestAlien);
             dottedLinesHarvestingAliensList.Add(dottedLinesHarvestingAliens);
         }
 
-        slider.maxValue = humans.Count;
-        slider.value = humans.Count;
-        harvestingSlider.maxValue = humans.Count;
-        inFormationSlider.maxValue = humans.Count;
+        // PLANETS AND ADDING THEM TO POSSIBLE PLANETS TO HARVEST FOR HUMANS
 
         for (int i = 0; i < 4; i++)
         {
-            planetsToHarvest.Add(Instantiate(icePlanet, new Vector3(Random.Range(-70f, 70f), Random.Range(-70f, 70f), 0f), transform.rotation));          
+            planetsToHarvest.Add(Instantiate(icePlanet, new Vector3(Random.Range(-70f, 70f), Random.Range(-70f, 70f), 0f), transform.rotation));
         }
         for (int i = 0; i < 10; i++)
         {
@@ -117,11 +113,14 @@ public class Manager : MonoBehaviour
             planetsToHarvest.Add(Instantiate(gasPlanet, new Vector3(Random.Range(-70f, 70f), Random.Range(-70f, 70f), 0f), transform.rotation));
         }
 
-        selectedPlanetsToHarvest = new List<GameObject>();
-        isPlanetSelected = new List<bool>();
+        // SLIDERS
 
-        dottedLinesHarvestingHumans = new List<GameObject>();
-        dottedLinesAttackingHumans = new List<GameObject>();
+        slider.maxValue = humans.Count;
+        slider.value = humans.Count;
+        harvestingSlider.maxValue = humans.Count;
+        inFormationSlider.maxValue = humans.Count;
+
+        // STARS AND BACKGROUND STARS
 
         Instantiate(star, new Vector3(Random.Range(-50f, 50f), Random.Range(-50f, 50f), 0f), transform.rotation);
         Instantiate(star, new Vector3(Random.Range(-50f, 50f), Random.Range(-50f, 50f), 0f), transform.rotation);
@@ -183,31 +182,29 @@ public class Manager : MonoBehaviour
             {
                 if (hit.collider.gameObject.tag == "MineralPlanet" || hit.collider.gameObject.tag == "IcePlanet" || hit.collider.gameObject.tag == "GasPlanet")
                 {
-                    if (selectedPlanetsToHarvest.IndexOf(hit.collider.gameObject) == -1)
+                    if (selectedPlanetsToHarvest.IndexOf(hit.collider.gameObject) == -1) // if clicked on a planet not already selected
                     {
-                        if (selectedPlanetsToHarvest.Count < 3)
+                        if (selectedPlanetsToHarvest.Count < 3) // max number of harvesting planets for humans
                         {
                             selectedPlanetsToHarvest.Add(hit.collider.gameObject);
-                            isPlanetSelected.Add(true);
                             HarvestersStartHarvesting();
                             dottedLinesHarvestingHumans.Add(Instantiate(dottedLine, transform));
                             dottedLinesHarvestingHumans[dottedLinesHarvestingHumans.Count - 1].GetComponent<LineRenderer>().SetPosition(0, Vector3.zero);
                             dottedLinesHarvestingHumans[dottedLinesHarvestingHumans.Count - 1].GetComponent<LineRenderer>().SetPosition(1, selectedPlanetsToHarvest[selectedPlanetsToHarvest.Count - 1].transform.position);
                         }
                     }
-                    else
+                    else // if clicked on a planet already selected, deselect it
                     {
                         int pos = selectedPlanetsToHarvest.IndexOf(hit.collider.gameObject);
                         Destroy(dottedLinesHarvestingHumans[pos]);
                         dottedLinesHarvestingHumans.RemoveAt(pos);
-                        isPlanetSelected.RemoveAt(pos);
                         HarvestingAborted(selectedPlanetsToHarvest[pos]);
                         selectedPlanetsToHarvest.RemoveAt(pos);
                     }
                 }
                 else if (hit.collider.gameObject.tag == "AlienPlanet")
                 {
-                    if (!isAlienPlanetSelected)
+                    if (!isAlienPlanetSelected) // if there isnt an alien planet selected
                     {
                         alienPlanetSelected = hit.collider.gameObject;
                         isAlienPlanetSelected = true;
@@ -216,15 +213,14 @@ public class Manager : MonoBehaviour
                         dottedLinesAttackingHumans[dottedLinesAttackingHumans.Count - 1].GetComponent<LineRenderer>().SetPosition(0, Vector3.zero);
                         dottedLinesAttackingHumans[dottedLinesAttackingHumans.Count - 1].GetComponent<LineRenderer>().SetPosition(1, alienPlanetSelected.transform.position);
                     }
-                    else if (alienPlanetSelected == hit.collider.gameObject)
+                    else if (alienPlanetSelected == hit.collider.gameObject) // if clicked on an alien planet already selected, deselect it and interrupt attack
                     {
                         Destroy(dottedLinesAttackingHumans[dottedLinesAttackingHumans.Count - 1]);
                         dottedLinesAttackingHumans.RemoveAt(dottedLinesAttackingHumans.Count - 1);
                         isAlienPlanetSelected = false;
-                        // defenseOrAttackButton = !defenseOrAttackButton;
                         HumansGoDefend();
                     }
-                    else
+                    else // if clicked on an alien planet but there is another planet already selected, interrupt attack and attack the new alien planet
                     {
                         Destroy(dottedLinesAttackingHumans[dottedLinesAttackingHumans.Count - 1]);
                         dottedLinesAttackingHumans.RemoveAt(dottedLinesAttackingHumans.Count - 1);
@@ -241,9 +237,12 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void HumanDied(GameObject human)
+
+    // HUMANS FUNCTIONS
+
+    public void HumanDied(GameObject human) // removes human from sliders and humans list
     {
-        RemoveHuman(human);
+        humans.Remove(human);
         int count = humans.Count;
         slider.maxValue = count;
         harvestingSlider.maxValue = count;
@@ -251,44 +250,6 @@ public class Manager : MonoBehaviour
         UpdateSlider();
         UpdateHarvestingSlider();
         UpdateInFormationSlider();
-    }
-
-    public void RemoveHuman(GameObject human)
-    {
-        humans.Remove(human);
-    }
-
-    public void RemoveAlien(GameObject alien)
-    {
-        for (int i = 0; i < aliensList.Count; i++)
-        {
-            if (aliensList[i].IndexOf(alien) != -1)
-            {
-                aliensList[i].Remove(alien);
-                break;
-            }
-        }
-    }
-
-    public GameObject GetClosestHuman(Vector3 pos, float maxRange)
-    {
-        GameObject closest = null;
-        foreach (GameObject human in humans)
-        {
-            if (Vector3.Distance(pos, human.transform.position) <= maxRange)
-            {
-                if (closest == null)
-                    closest = human;
-                else
-                {
-                    if (Vector3.Distance(pos, human.transform.position) < Vector3.Distance(pos, closest.transform.position))
-                    {
-                        closest = human;
-                    }
-                }
-            }
-        }
-        return closest;
     }
 
     public GameObject GetClosestAlien(Vector3 pos, float maxRange)
@@ -327,10 +288,10 @@ public class Manager : MonoBehaviour
             harvestingSlider.maxValue = count;
             inFormationSlider.maxValue = count;
             UpdatePlanet(count);
-        }  
+        }
     }
 
-    public void UpdatePlanet(int count)
+    public void UpdatePlanet(int count) // increases the size of human planet at specific population numbers
     {
         if (count > 8 && count < 38)
         {
@@ -342,10 +303,174 @@ public class Manager : MonoBehaviour
                 for (int i = 0; i < count; i++)
                     humans[i].GetComponent<Movement>().radius = humanPlanetScale / 2f;
             }
-        } 
+        }
     }
 
-    public void AddAlien(GameObject alienPlanet)
+    public Vector3 HarvestingPlanetsDistributor() // distributes equally human harvesters to harvest selected planets for harvesting
+    {
+        indexPlanetToHarvest += 1;
+        if (indexPlanetToHarvest < selectedPlanetsToHarvest.Count)
+        {
+            return selectedPlanetsToHarvest[indexPlanetToHarvest].transform.position;
+        }
+        else
+        {
+            indexPlanetToHarvest = 0;
+            return selectedPlanetsToHarvest[0].transform.position;
+        }
+    }
+
+    public void RecalculateFormation() // rearranges human defenders
+    {
+        List<GameObject> entsToPass = new List<GameObject>();
+        for (int i = 0; i < humans.Count; i++)
+        {
+            if (humans[i].GetComponent<HumanJob>().inFormation || humans[i].GetComponent<HumanJob>().goingIntoFormation)
+            {
+                entsToPass.Add(humans[i]);
+            }
+        }
+        Vector2[] humansTargetPos = circleFormation.CalculateCircleFormation(entsToPass, humanPlanet.transform.position, humanPlanetScale / 2f);
+        for (int i = 0; i < entsToPass.Count; i++)
+        {
+            entsToPass[i].GetComponent<HumanJob>().SetIsGoingIntoFormation();
+            entsToPass[i].GetComponent<GoInFormationHuman>().enabled = true;
+            entsToPass[i].GetComponent<GoInFormationHuman>().coords = humansTargetPos[i];
+        }
+    }
+
+    public void HumansGoDefend()
+    {
+        defOrAttButton.GetComponent<Image>().sprite = shieldImage;
+        List<GameObject> entsToPass = new List<GameObject>();
+        for (int i = 0; i < humans.Count; i++)
+        {
+            if (humans[i].GetComponent<HumanJob>().attacking ||
+                humans[i].GetComponent<HumanJob>().inFormation || humans[i].GetComponent<HumanJob>().goingIntoFormation)
+            {
+                entsToPass.Add(humans[i]);
+            }
+        }
+        Vector2[] humansTargetPos = circleFormation.CalculateCircleFormation(entsToPass, humanPlanet.transform.position, humanPlanetScale / 2f);
+        for (int i = 0; i < entsToPass.Count; i++)
+        {
+            entsToPass[i].GetComponent<GoToAttackHuman>().enabled = false;
+            entsToPass[i].GetComponent<HumanJob>().SetIsGoingIntoFormation();
+            entsToPass[i].GetComponent<Movement>().enabled = false;
+            entsToPass[i].GetComponent<GoInFormationHuman>().enabled = true;
+            entsToPass[i].GetComponent<GoInFormationHuman>().coords = humansTargetPos[i];
+        }
+    }
+
+    public void DefenseOrAttackButton() // on click function for button, true=defense, false=attack
+    {
+        if (isAlienPlanetSelected)
+        {
+            defenseOrAttackButton = !defenseOrAttackButton;
+            if (defenseOrAttackButton)
+            {
+                Destroy(dottedLinesAttackingHumans[dottedLinesAttackingHumans.Count - 1]);
+                dottedLinesAttackingHumans.RemoveAt(dottedLinesAttackingHumans.Count - 1);
+                isAlienPlanetSelected = false;
+                HumansGoDefend();
+            }
+            else
+            {
+                defOrAttButton.GetComponent<Image>().sprite = swordImage;
+                for (int i = 0; i < humans.Count; i++)
+                {
+                    if (humans[i].GetComponent<HumanJob>().inFormation || humans[i].GetComponent<HumanJob>().goingIntoFormation)
+                    {
+                        humans[i].GetComponent<GoInFormationHuman>().enabled = false;
+                        humans[i].GetComponent<GoToAttackHuman>().enabled = true;
+                        humans[i].GetComponent<GoToAttackHuman>().SetTarget(alienPlanetSelected);
+                        /*new Vector2(alienPlanetSelected.transform.position.x + Random.insideUnitCircle.x * (alienPlanetSelected.transform.localScale.x / 2f),
+                            alienPlanetSelected.transform.position.y + Random.insideUnitCircle.y * (alienPlanetSelected.transform.localScale.x / 2f));*/
+                        humans[i].GetComponent<HumanJob>().SetIsAttacking();
+                    }
+                }
+            }
+        }
+    }
+
+    public void RemoveAlien(GameObject alien) // removes alien from its list
+    {
+        for (int i = 0; i < aliensList.Count; i++)
+        {
+            if (aliensList[i].IndexOf(alien) != -1)
+            {
+                aliensList[i].Remove(alien);
+                break;
+            }
+        }
+    }
+
+    public GameObject GetClosestHuman(Vector3 pos, float maxRange)
+    {
+        GameObject closest = null;
+        foreach (GameObject human in humans)
+        {
+            if (Vector3.Distance(pos, human.transform.position) <= maxRange)
+            {
+                if (closest == null)
+                    closest = human;
+                else
+                {
+                    if (Vector3.Distance(pos, human.transform.position) < Vector3.Distance(pos, closest.transform.position))
+                    {
+                        closest = human;
+                    }
+                }
+            }
+        }
+        return closest;
+    }
+
+    public void HarvestersStartHarvesting() // if there are harvesters but no planets selected for harvesting and a new planet to harvest is selected
+    {
+        for (int i = 0; i < humans.Count; i++)
+        {
+            if (humans[i].GetComponent<HumanJob>().harvesting)
+            {
+                humans[i].GetComponent<Movement>().enabled = false;
+                humans[i].GetComponent<HarvestResources>().enabled = true;
+                humans[i].GetComponent<HarvestResources>().SetPlanet(HarvestingPlanetsDistributor(),
+                    new Vector3(humanPlanet.transform.position.x + Random.insideUnitCircle.x * (humanPlanetScale / 2f),
+                    humanPlanet.transform.position.y + Random.insideUnitCircle.y * (humanPlanetScale / 2f), 0));
+            }
+        }
+    }
+
+    public void AttackersStartAttacking() // if there are attackers but no planets selected for attacking and a new planet to attack is selected
+    {
+        for (int i = 0; i < humans.Count; i++)
+        {
+            if (humans[i].GetComponent<HumanJob>().attacking)
+            {
+                humans[i].GetComponent<Movement>().enabled = false;
+                humans[i].GetComponent<GoToAttackHuman>().enabled = true;
+                humans[i].GetComponent<GoToAttackHuman>().SetTarget(alienPlanetSelected);
+                /*new Vector2(alienPlanetSelected.transform.position.x + Random.insideUnitCircle.x* (alienPlanetSelected.transform.localScale.x / 2f),
+                    alienPlanetSelected.transform.position.y + Random.insideUnitCircle.y* (alienPlanetSelected.transform.localScale.x / 2f));*/
+            }
+        }
+    }
+
+    public void HarvestingAborted(GameObject planetToStopHarvesting) // if clicked on a planet already selected for harvesting, interrupt harvesting for that planet
+    {
+        for (int i = 0; i < humans.Count; i++)
+        {
+            if (humans[i].GetComponent<HumanJob>().harvesting && humans[i].GetComponent<HarvestResources>().coorPlanet == planetToStopHarvesting.transform.position)
+            {
+                humans[i].GetComponent<HarvestResources>().PlanetOutOfResources();
+            }
+        }
+    }
+
+
+    // ALIENS FUNCTIONS
+
+    public void AddAlien(GameObject alienPlanet) // add a new alien to a specific alien planet and increases the size of its alien planet at specific population numbers
     {
         int index = alienPlanets.IndexOf(alienPlanet);
         if (aliensList[index].Count < 50)
@@ -368,7 +493,7 @@ public class Manager : MonoBehaviour
         } 
     }
 
-    public void AddAlien()
+    public void AddAlien() // add a new alien to every alien planet and increases the size alien planets at specific population numbers
     {
         for (int i = 0; i < alienPlanets.Count; i++)
         {
@@ -393,7 +518,7 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void AliensInFormation(int index)
+    public void AliensInFormation(int index) // puts aliens of a specific alien planet in defensive formation
     {
         Vector2[] aliensTargetPos = circleFormation.CalculateCircleFormation(aliensList[index], alienPlanets[index].transform.position, alienPlanets[index].transform.localScale.x / 2f);
         for (int i = 0; i < aliensList[index].Count; i++)
@@ -407,9 +532,9 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void AliensStopHarvesting(int index)
+    public void AliensStopHarvesting(int index) // aliens of a specific alien planet stop harvesting
     {
-        if (selectedPlanetsToHarvestAlienList[index].Count > 0)
+        if (selectedPlanetsToHarvestAlienList[index].Count > 0) 
         {
             for (int i = 0; i < dottedLinesHarvestingAliensList[index].Count; i++)
             {
@@ -428,9 +553,9 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void AliensHarvesting(int index)
+    public void AliensHarvesting(int index) // aliens of a specific alien planet start harvesting
     {
-        if (dottedLinesHarvestingAliensList[index].Count > 0)
+        if (dottedLinesHarvestingAliensList[index].Count > 0) // if they are already harvesting they stop
         {
             AliensStopHarvesting(index);
         }
@@ -458,7 +583,7 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void StartAlienAttack(int index)
+    public void StartAlienAttack(int index) // aliens from a specific alien planet start attacking humans
     {
         for (int i = 0; i < aliensList[index].Count; i++)
         {
@@ -473,7 +598,7 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void AliensFree(int index)
+    public void AliensFree(int index) // aliens of a specific alien planet are set free
     {
         AliensStopHarvesting(index);
         for (int i = 0; i < aliensList[index].Count; i++)
@@ -487,18 +612,290 @@ public class Manager : MonoBehaviour
         }
     }
 
-    private int find_next_square(int sq)
+    public void RecalculateFormationAliens(int index) // rearranges alien defenders
     {
-        if (sq > 9)
+        List<GameObject> entsToPass = new List<GameObject>();
+        for (int i = 0; i < aliensList[index].Count; i++)
         {
-            int x = (int)Mathf.Pow(sq, 0.5f);
-            return (int)Mathf.Pow(x + 1, 2);
+            if (aliensList[index][i].GetComponent<AlienJob>().inFormation || aliensList[index][i].GetComponent<AlienJob>().goingIntoFormation)
+            {
+                entsToPass.Add(aliensList[index][i]);
+            }
+        }
+        Vector2[] humansTargetPos = circleFormation.CalculateCircleFormation(entsToPass, alienPlanets[index].transform.position, alienPlanets[index].transform.localScale.x / 2f);
+        for (int i = 0; i < entsToPass.Count; i++)
+        {
+            entsToPass[i].GetComponent<AlienJob>().SetIsGoingIntoFormation();
+            entsToPass[i].GetComponent<GoInFormationAlien>().enabled = true;
+            entsToPass[i].GetComponent<GoInFormationAlien>().coords = humansTargetPos[i];
+        }
+    }
+
+    public GameObject FindNearestPlanetToHarvestForAliens(GameObject alienPlanet)
+    {
+        float minDistance = float.MaxValue;
+        float dis;
+        int count = 0;
+        for (int i = 0; i < planetsToHarvest.Count; i++)
+        {
+            if (planetsToHarvest[i].GetComponent<CircleCollider2D>().enabled)
+            {
+                dis = Vector3.Distance(alienPlanet.transform.position, planetsToHarvest[i].transform.position);
+                if (dis < minDistance)
+                {
+                    minDistance = dis;
+                    count = i;
+                }
+            }
+        }
+        return planetsToHarvest[count];
+    }
+
+
+    // STOP HARVESTING FOR ALIENS AND HUMANS
+
+    public void EndHarvesting(GameObject planetToStopHarvesting) // triggered by planets when they reach 0 resources available, interrupts harvesting for that planet 
+    {
+        if (selectedPlanetsToHarvest.IndexOf(planetToStopHarvesting) != -1)
+        {
+            int pos = selectedPlanetsToHarvest.IndexOf(planetToStopHarvesting);
+            selectedPlanetsToHarvest.RemoveAt(pos);
+            Destroy(dottedLinesHarvestingHumans[pos]);
+            dottedLinesHarvestingHumans.RemoveAt(pos);
+            for (int i = 0; i < humans.Count; i++)
+            {
+                if (humans[i].GetComponent<HumanJob>().harvesting && humans[i].GetComponent<HarvestResources>().coorPlanet == planetToStopHarvesting.transform.position)
+                {
+                    humans[i].GetComponent<HarvestResources>().PlanetOutOfResources();
+                }
+            }
+        }
+
+        for (int j = 0; j < selectedPlanetsToHarvestAlienList.Count; j++)
+        {
+            if (selectedPlanetsToHarvestAlienList[j].IndexOf(planetToStopHarvesting) != -1)
+            {
+                int pos = selectedPlanetsToHarvestAlienList[j].IndexOf(planetToStopHarvesting);
+                selectedPlanetsToHarvestAlienList[j].RemoveAt(pos);
+                Destroy(dottedLinesHarvestingAliensList[j][pos]);
+                dottedLinesHarvestingAliensList[j].RemoveAt(pos);
+                for (int i = 0; i < aliensList[j].Count; i++)
+                {
+                    if (aliensList[j][i].GetComponent<AlienJob>().harvesting && aliensList[j][i].GetComponent<HarvestResourcesAlien>().coorPlanet == planetToStopHarvesting.transform.position)
+                    {
+                        aliensList[j][i].GetComponent<HarvestResourcesAlien>().PlanetOutOfResources();
+                    }
+                }
+            }
+        }
+    }
+
+
+    // SERIES OF FUNCTIONS FOR SLIDERS
+
+    public void AddHarvesters(int num) // function for harvesters slider
+    {
+        int numHarvesting = getHarvestingHumans();
+        for (int i = 0; i < num - numHarvesting; i++)
+        {
+            bool found = false;
+            int k = 0;
+            while (!found)
+            {
+                if (selectedPlanetsToHarvest.Count > 0)
+                {
+                    if (humans[k].GetComponent<HumanJob>().free)
+                    {
+                        found = true;
+                        humans[k].GetComponent<Movement>().enabled = false;
+                        humans[k].GetComponent<HarvestResources>().enabled = true;
+                        humans[k].GetComponent<HarvestResources>().SetPlanet(HarvestingPlanetsDistributor(),
+                            new Vector3(humanPlanet.transform.position.x + Random.insideUnitCircle.x * (humanPlanetScale / 2f),
+                            humanPlanet.transform.position.y + Random.insideUnitCircle.y * (humanPlanetScale / 2f), 0));
+                        humans[k].GetComponent<HumanJob>().SetIsHarvesting();
+                        UpdateSlider();
+                    }
+                    else
+                    {
+                        k++;
+                    }
+                }
+                else
+                {
+                    if (humans[k].GetComponent<HumanJob>().free)
+                    {
+                        found = true;
+                        humans[k].GetComponent<HumanJob>().SetIsHarvesting();
+                        UpdateSlider();
+                    }
+                    else
+                    {
+                        k++;
+                    }
+                }
+            }
+        }
+    }
+
+    public void RemoveHarvesters(int num) // function for harvesters slider
+    {
+        int numHarvesting = getHarvestingHumans();
+        int len = numHarvesting - num;
+        for (int i = 0; i < len; i++)
+        {
+            bool found = false;
+            int k = humans.Count - 1;
+            while (!found)
+            {
+                if (selectedPlanetsToHarvest.Count > 0)
+                {
+                    if (humans[k].GetComponent<HumanJob>().harvesting)
+                    {
+                        found = true;
+                        humans[k].GetComponent<HarvestResources>().stopHarvesting = true;
+                    }
+                    else
+                    {
+                        k--;
+                    }
+                }
+                else
+                {
+                    if (humans[k].GetComponent<HumanJob>().harvesting)
+                    {
+                        found = true;
+                        humans[k].GetComponent<HumanJob>().SetIsFree();
+                        humans[k].GetComponent<HarvestResources>().stopHarvesting = true;
+                        UpdateSlider();
+                    }
+                    else
+                    {
+                        k--;
+                    }
+                }
+
+            }
+        }
+    }
+
+    public void AddInFormation(int num) // function for in formation slider
+    {
+        if (defenseOrAttackButton)
+        {
+            List<GameObject> entsToPass = new List<GameObject>();
+            for (int i = 0; i < humans.Count; i++)
+            {
+                if (humans[i].GetComponent<HumanJob>().inFormation || humans[i].GetComponent<HumanJob>().goingIntoFormation)
+                {
+                    entsToPass.Add(humans[i]);
+                }
+            }
+            int numFG = getInFormationOrGoingHumans();
+            for (int i = 0; i < num - numFG; i++)
+            {
+                bool found = false;
+                int k = 0;
+                while (!found)
+                {
+                    if (humans[k].GetComponent<HumanJob>().free)
+                    {
+                        humans[k].GetComponent<HumanJob>().free = false;
+                        found = true;
+                        entsToPass.Add(humans[k]);
+                        humans[k].GetComponent<Movement>().enabled = false;
+                        humans[k].GetComponent<HarvestResources>().ResetHarvester();
+                        UpdateSlider();
+                    }
+                    else
+                    {
+                        k++;
+                    }
+                }
+            }
+            Vector2[] humansTargetPos = circleFormation.CalculateCircleFormation(entsToPass, humanPlanet.transform.position, humanPlanetScale / 2f);
+            for (int i = 0; i < entsToPass.Count; i++)
+            {
+                entsToPass[i].GetComponent<HumanJob>().SetIsGoingIntoFormation();
+                entsToPass[i].GetComponent<CombatModeHuman>().StartCombatModeHuman();
+                entsToPass[i].GetComponent<GoInFormationHuman>().enabled = true;
+                entsToPass[i].GetComponent<GoInFormationHuman>().coords = humansTargetPos[i];
+            }
         }
         else
         {
-            return 9;
+            int numFGA = getInFormationOrGoingOrAttackingHumans();
+            for (int i = 0; i < num - numFGA; i++)
+            {
+                bool found = false;
+                int k = 0;
+                while (!found)
+                {
+                    if (isAlienPlanetSelected)
+                    {
+                        if (humans[k].GetComponent<HumanJob>().free)
+                        {
+                            found = true;
+                            humans[k].GetComponent<Movement>().enabled = false;
+                            humans[k].GetComponent<GoToAttackHuman>().enabled = true;
+                            humans[k].GetComponent<GoToAttackHuman>().SetTarget(alienPlanetSelected);
+                            /*new Vector2(alienPlanetSelected.transform.position.x + Random.insideUnitCircle.x * (alienPlanetSelected.transform.localScale.x / 2f),
+                                alienPlanetSelected.transform.position.y + Random.insideUnitCircle.y * (alienPlanetSelected.transform.localScale.x / 2f));*/
+                            humans[k].GetComponent<HumanJob>().SetIsAttacking();
+                            humans[k].GetComponent<CombatModeHuman>().StartCombatModeHuman();
+                            UpdateSlider();
+                        }
+                        else
+                        {
+                            k++;
+                        }
+                    }
+                    else
+                    {
+                        if (humans[k].GetComponent<HumanJob>().free)
+                        {
+                            found = true;
+                            humans[k].GetComponent<HumanJob>().SetIsAttacking();
+                            humans[k].GetComponent<CombatModeHuman>().StartCombatModeHuman();
+                            UpdateSlider();
+                        }
+                        else
+                        {
+                            k++;
+                        }
+                    }
+                }
+            }
         }
-        
+    }
+
+    public void RemoveInFormation(int num) // function for in formation slider
+    {
+        int numInFormationOrGoing = getInFormationOrGoingOrAttackingHumans();
+        int len = numInFormationOrGoing - num;
+        for (int i = 0; i < len; i++)
+        {
+            bool found = false;
+            int k = humans.Count - 1;
+            while (!found)
+            {
+                if (humans[k].GetComponent<HumanJob>().inFormation || humans[k].GetComponent<HumanJob>().goingIntoFormation
+                    || humans[k].GetComponent<HumanJob>().attacking)
+                {
+                    found = true;
+                    humans[k].GetComponent<GoInFormationHuman>().enabled = false;
+                    humans[k].GetComponent<GoToAttackHuman>().enabled = false;
+                    humans[k].GetComponent<CombatModeHuman>().StopCombatModeHuman();
+                    humans[k].GetComponent<Movement>().enabled = true;
+                    humans[k].GetComponent<HumanJob>().SetIsFree();
+                    RecalculateFormation();
+                    UpdateSlider();
+                }
+                else
+                {
+                    k--;
+                }
+            }
+        }
     }
 
     public int getNumHumans()
@@ -566,380 +963,8 @@ public class Manager : MonoBehaviour
         inFormationSlider.value = getInFormationOrGoingOrAttackingHumans();
     }
 
-    public Vector3 HarvestingPlanetsDistributor()
-    {
-        indexPlanetToHarvest += 1;
-        if (indexPlanetToHarvest < selectedPlanetsToHarvest.Count)
-        {
-            return selectedPlanetsToHarvest[indexPlanetToHarvest].transform.position;
-        }
-        else
-        {
-            indexPlanetToHarvest = 0;
-            return selectedPlanetsToHarvest[0].transform.position;
-        }
-    }
 
-    public void AddHarvesters(int num)
-    {
-        int numHarvesting = getHarvestingHumans();
-        for (int i = 0; i < num - numHarvesting; i++)
-        {
-            bool found = false;
-            int k = 0;
-            while (!found)
-            {
-                if (selectedPlanetsToHarvest.Count > 0)
-                {
-                    if (humans[k].GetComponent<HumanJob>().free)
-                    {
-                        found = true;
-                        humans[k].GetComponent<Movement>().enabled = false;
-                        humans[k].GetComponent<HarvestResources>().enabled = true;
-                        humans[k].GetComponent<HarvestResources>().SetPlanet(HarvestingPlanetsDistributor(),
-                            new Vector3(humanPlanet.transform.position.x + Random.insideUnitCircle.x * (humanPlanetScale / 2f),
-                            humanPlanet.transform.position.y + Random.insideUnitCircle.y * (humanPlanetScale / 2f), 0));
-                        humans[k].GetComponent<HumanJob>().SetIsHarvesting();
-                        UpdateSlider();
-                    }
-                    else
-                    {
-                        k++;
-                    }
-                }
-                else
-                {
-                    if (humans[k].GetComponent<HumanJob>().free)
-                    {
-                        found = true;
-                        humans[k].GetComponent<HumanJob>().SetIsHarvesting();
-                        UpdateSlider();
-                    }
-                    else
-                    {
-                        k++;
-                    }
-                }
-            }
-        } 
-    }
-
-    public void RemoveHarvesters(int num)
-    {
-        int numHarvesting = getHarvestingHumans();
-        int len = numHarvesting - num;
-        for (int i = 0; i < len; i++)
-        {
-            bool found = false;
-            int k = humans.Count - 1;
-            while (!found)
-            {
-                if (selectedPlanetsToHarvest.Count > 0)
-                {
-                    if (humans[k].GetComponent<HumanJob>().harvesting)
-                    {
-                        found = true;
-                        humans[k].GetComponent<HarvestResources>().stopHarvesting = true;
-                    }
-                    else
-                    {
-                        k--;
-                    }
-                }
-                else
-                {
-                    if (humans[k].GetComponent<HumanJob>().harvesting)
-                    {
-                        found = true;
-                        humans[k].GetComponent<HumanJob>().SetIsFree();
-                        humans[k].GetComponent<HarvestResources>().stopHarvesting = true;
-                        UpdateSlider();
-                    }
-                    else
-                    {
-                        k--;
-                    }
-                }
-                
-            }
-        }
-    }
-
-    public void AddInFormation(int num)
-    {
-        if (defenseOrAttackButton)
-        {
-            List<GameObject> entsToPass = new List<GameObject>();
-            for (int i = 0; i < humans.Count; i++)
-            {
-                if (humans[i].GetComponent<HumanJob>().inFormation || humans[i].GetComponent<HumanJob>().goingIntoFormation)
-                {
-                    entsToPass.Add(humans[i]);
-                }
-            }
-            int numFG = getInFormationOrGoingHumans();
-            for (int i = 0; i < num - numFG; i++)
-            {
-                bool found = false;
-                int k = 0;
-                while (!found)
-                {
-                    if (humans[k].GetComponent<HumanJob>().free)
-                    {
-                        humans[k].GetComponent<HumanJob>().free = false;
-                        found = true;
-                        entsToPass.Add(humans[k]);
-                        humans[k].GetComponent<Movement>().enabled = false;
-                        humans[k].GetComponent<HarvestResources>().ResetHarvester();
-                        UpdateSlider();
-                    }
-                    else
-                    {
-                        k++;
-                    }
-                }
-            }
-            Vector2[] humansTargetPos = circleFormation.CalculateCircleFormation(entsToPass, humanPlanet.transform.position, humanPlanetScale / 2f);
-            for (int i = 0; i < entsToPass.Count; i++)
-            {
-                entsToPass[i].GetComponent<HumanJob>().SetIsGoingIntoFormation();
-                entsToPass[i].GetComponent<CombatModeHuman>().StartCombatModeHuman();
-                entsToPass[i].GetComponent<GoInFormationHuman>().enabled = true;
-                entsToPass[i].GetComponent<GoInFormationHuman>().coords = humansTargetPos[i];
-            }
-        }
-        else
-        {
-            int numFGA = getInFormationOrGoingOrAttackingHumans();
-            for (int i = 0; i < num - numFGA; i++)
-            {
-                bool found = false;
-                int k = 0;
-                while (!found)
-                {
-                    if (isAlienPlanetSelected)
-                    {
-                        if (humans[k].GetComponent<HumanJob>().free)
-                        {
-                            found = true;
-                            humans[k].GetComponent<Movement>().enabled = false;
-                            humans[k].GetComponent<GoToAttackHuman>().enabled = true;
-                            humans[k].GetComponent<GoToAttackHuman>().SetTarget(alienPlanetSelected);
-                                /*new Vector2(alienPlanetSelected.transform.position.x + Random.insideUnitCircle.x * (alienPlanetSelected.transform.localScale.x / 2f),
-                                    alienPlanetSelected.transform.position.y + Random.insideUnitCircle.y * (alienPlanetSelected.transform.localScale.x / 2f));*/
-                            humans[k].GetComponent<HumanJob>().SetIsAttacking();
-                            humans[k].GetComponent<CombatModeHuman>().StartCombatModeHuman();
-                            UpdateSlider();
-                        }
-                        else
-                        {
-                            k++;
-                        }
-                    }
-                    else
-                    {
-                        if (humans[k].GetComponent<HumanJob>().free)
-                        {
-                            found = true;
-                            humans[k].GetComponent<HumanJob>().SetIsAttacking();
-                            humans[k].GetComponent<CombatModeHuman>().StartCombatModeHuman();
-                            UpdateSlider();
-                        }
-                        else
-                        {
-                            k++;
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    public void RemoveInFormation(int num)
-    {
-        int numInFormationOrGoing = getInFormationOrGoingOrAttackingHumans();
-        int len = numInFormationOrGoing - num;
-        for (int i = 0; i < len; i++)
-        {
-            bool found = false;
-            int k = humans.Count - 1;
-            while (!found)
-            {
-                if (humans[k].GetComponent<HumanJob>().inFormation || humans[k].GetComponent<HumanJob>().goingIntoFormation
-                    || humans[k].GetComponent<HumanJob>().attacking)
-                {
-                    found = true;
-                    humans[k].GetComponent<GoInFormationHuman>().enabled = false;
-                    humans[k].GetComponent<GoToAttackHuman>().enabled = false;
-                    humans[k].GetComponent<CombatModeHuman>().StopCombatModeHuman();
-                    humans[k].GetComponent<Movement>().enabled = true;
-                    humans[k].GetComponent<HumanJob>().SetIsFree();
-                    RecalculateFormation();
-                    UpdateSlider();
-                }
-                else
-                {
-                    k--;
-                }
-            }
-        }
-    }
-
-    public void RecalculateFormation()
-    {
-        List<GameObject> entsToPass = new List<GameObject>();
-        for (int i = 0; i < humans.Count; i++)
-        {
-            if (humans[i].GetComponent<HumanJob>().inFormation || humans[i].GetComponent<HumanJob>().goingIntoFormation)
-            {
-                entsToPass.Add(humans[i]);
-            }
-        }
-        Vector2[] humansTargetPos = circleFormation.CalculateCircleFormation(entsToPass, humanPlanet.transform.position, humanPlanetScale / 2f);
-        for (int i = 0; i < entsToPass.Count; i++)
-        {
-            entsToPass[i].GetComponent<HumanJob>().SetIsGoingIntoFormation();
-            entsToPass[i].GetComponent<GoInFormationHuman>().enabled = true;
-            entsToPass[i].GetComponent<GoInFormationHuman>().coords = humansTargetPos[i];
-        }
-    }
-
-    public void RecalculateFormationAliens(int index)
-    {
-        List<GameObject> entsToPass = new List<GameObject>();
-        for (int i = 0; i < aliensList[index].Count; i++)
-        {
-            if (aliensList[index][i].GetComponent<AlienJob>().inFormation || aliensList[index][i].GetComponent<AlienJob>().goingIntoFormation)
-            {
-                entsToPass.Add(aliensList[index][i]);
-            }
-        }
-        Vector2[] humansTargetPos = circleFormation.CalculateCircleFormation(entsToPass, alienPlanets[index].transform.position, alienPlanets[index].transform.localScale.x / 2f);
-        for (int i = 0; i < entsToPass.Count; i++)
-        {
-            entsToPass[i].GetComponent<AlienJob>().SetIsGoingIntoFormation();
-            entsToPass[i].GetComponent<GoInFormationAlien>().enabled = true;
-            entsToPass[i].GetComponent<GoInFormationAlien>().coords = humansTargetPos[i];
-        }
-    }
-
-    public void HarvestingAborted(GameObject planetToStopHarvesting)
-    {
-        for (int i = 0; i < humans.Count; i++)
-        {
-            if (humans[i].GetComponent<HumanJob>().harvesting && humans[i].GetComponent<HarvestResources>().coorPlanet == planetToStopHarvesting.transform.position)
-            {
-                humans[i].GetComponent<HarvestResources>().PlanetOutOfResources();
-            }
-        }
-    }
-
-    public void EndHarvesting(GameObject planetToStopHarvesting)
-    {
-        if (selectedPlanetsToHarvest.IndexOf(planetToStopHarvesting) != -1)
-        {
-            int pos = selectedPlanetsToHarvest.IndexOf(planetToStopHarvesting);
-            isPlanetSelected.RemoveAt(pos);
-            selectedPlanetsToHarvest.RemoveAt(pos);
-            Destroy(dottedLinesHarvestingHumans[pos]);
-            dottedLinesHarvestingHumans.RemoveAt(pos);
-            for (int i = 0; i < humans.Count; i++)
-            {
-                if (humans[i].GetComponent<HumanJob>().harvesting && humans[i].GetComponent<HarvestResources>().coorPlanet == planetToStopHarvesting.transform.position)
-                {
-                    humans[i].GetComponent<HarvestResources>().PlanetOutOfResources();
-                }
-            }
-        }
-
-        for (int j = 0; j < selectedPlanetsToHarvestAlienList.Count; j++)
-        {
-            if (selectedPlanetsToHarvestAlienList[j].IndexOf(planetToStopHarvesting) != -1)
-            {
-                int pos = selectedPlanetsToHarvestAlienList[j].IndexOf(planetToStopHarvesting);
-                selectedPlanetsToHarvestAlienList[j].RemoveAt(pos);
-                Destroy(dottedLinesHarvestingAliensList[j][pos]);
-                dottedLinesHarvestingAliensList[j].RemoveAt(pos);
-                for (int i = 0; i < aliensList[j].Count; i++)
-                {
-                    if (aliensList[j][i].GetComponent<AlienJob>().harvesting && aliensList[j][i].GetComponent<HarvestResourcesAlien>().coorPlanet == planetToStopHarvesting.transform.position)
-                    {
-                        aliensList[j][i].GetComponent<HarvestResourcesAlien>().PlanetOutOfResources();
-                    }
-                }
-            }
-        }
-    }
-
-    public void HarvestersStartHarvesting()
-    {
-        for (int i = 0; i < humans.Count; i++)
-        {
-            if (humans[i].GetComponent<HumanJob>().harvesting)
-            {
-                humans[i].GetComponent<Movement>().enabled = false;
-                humans[i].GetComponent<HarvestResources>().enabled = true;
-                humans[i].GetComponent<HarvestResources>().SetPlanet(HarvestingPlanetsDistributor(),
-                    new Vector3(humanPlanet.transform.position.x + Random.insideUnitCircle.x * (humanPlanetScale / 2f),
-                    humanPlanet.transform.position.y + Random.insideUnitCircle.y * (humanPlanetScale / 2f), 0));
-            }
-        }
-    }
-
-    public void AttackersStartAttacking()    
-    {
-        for (int i = 0; i<humans.Count; i++)
-        {
-            if (humans[i].GetComponent<HumanJob>().attacking)
-            {
-                humans[i].GetComponent<Movement>().enabled = false;
-                humans[i].GetComponent<GoToAttackHuman>().enabled = true;
-                humans[i].GetComponent<GoToAttackHuman>().SetTarget(alienPlanetSelected);
-                    /*new Vector2(alienPlanetSelected.transform.position.x + Random.insideUnitCircle.x* (alienPlanetSelected.transform.localScale.x / 2f),
-                        alienPlanetSelected.transform.position.y + Random.insideUnitCircle.y* (alienPlanetSelected.transform.localScale.x / 2f));*/
-            }
-        }
-    }
-
-    /* public Vector3 FindNearestPlanetToHarvest()
-    {
-        float minDistance = float.MaxValue;
-        float dis;
-        int count = 0;
-        for (int i = 0; i < planetsToHarvest.Count; i++)
-        {
-            if (planetsToHarvest[i].activeSelf)
-            {
-                dis = Vector3.Distance(humanPlanet.transform.position, planetsToHarvest[i].transform.position);
-                if (dis < minDistance)
-                {
-                    minDistance = dis;
-                    count = i;
-                }
-            }
-        }
-        return planetsToHarvest[count].transform.position;
-    }*/
-
-    public GameObject FindNearestPlanetToHarvestForAliens(GameObject alienPlanet)
-    {
-        float minDistance = float.MaxValue;
-        float dis;
-        int count = 0;
-        for (int i = 0; i < planetsToHarvest.Count; i++)
-        {
-            if (planetsToHarvest[i].GetComponent<CircleCollider2D>().enabled)
-            {
-                dis = Vector3.Distance(alienPlanet.transform.position, planetsToHarvest[i].transform.position);
-                if (dis < minDistance)
-                {
-                    minDistance = dis;
-                    count = i;
-                }
-            }
-        }
-        return planetsToHarvest[count];
-    }
+    // ADD RESOURCES TO SLIDERS
 
     public void AddMineralResource()
     {
@@ -956,58 +981,18 @@ public class Manager : MonoBehaviour
         gasResourcesSlider.value++;
     }
 
-    public void HumansGoDefend()
-    {
-        defOrAttButton.GetComponent<Image>().sprite = shieldImage;
-        List<GameObject> entsToPass = new List<GameObject>();
-        for (int i = 0; i < humans.Count; i++)
-        {
-            if (humans[i].GetComponent<HumanJob>().attacking ||
-                humans[i].GetComponent<HumanJob>().inFormation || humans[i].GetComponent<HumanJob>().goingIntoFormation)
-            {
-                entsToPass.Add(humans[i]);
-            }
-        }
-        Vector2[] humansTargetPos = circleFormation.CalculateCircleFormation(entsToPass, humanPlanet.transform.position, humanPlanetScale / 2f);
-        for (int i = 0; i < entsToPass.Count; i++)
-        {
-            entsToPass[i].GetComponent<GoToAttackHuman>().enabled = false;
-            entsToPass[i].GetComponent<HumanJob>().SetIsGoingIntoFormation();
-            entsToPass[i].GetComponent<Movement>().enabled = false;
-            entsToPass[i].GetComponent<GoInFormationHuman>().enabled = true;
-            entsToPass[i].GetComponent<GoInFormationHuman>().coords = humansTargetPos[i];
-        }
-    }
 
-    public void DefenseOrAttackButton()
+    private int find_next_square(int sq) // purely mathematical function for planet sizes
     {
-        // true = defense, false = attack
-        if (isAlienPlanetSelected)
+        if (sq > 9)
         {
-            defenseOrAttackButton = !defenseOrAttackButton;
-            if (defenseOrAttackButton)
-            {
-                Destroy(dottedLinesAttackingHumans[dottedLinesAttackingHumans.Count - 1]);
-                dottedLinesAttackingHumans.RemoveAt(dottedLinesAttackingHumans.Count - 1);
-                isAlienPlanetSelected = false;
-                HumansGoDefend();
-            }
-            else
-            {
-                defOrAttButton.GetComponent<Image>().sprite = swordImage;
-                for (int i = 0; i < humans.Count; i++)
-                {
-                    if (humans[i].GetComponent<HumanJob>().inFormation || humans[i].GetComponent<HumanJob>().goingIntoFormation)
-                    {
-                        humans[i].GetComponent<GoInFormationHuman>().enabled = false;
-                        humans[i].GetComponent<GoToAttackHuman>().enabled = true;
-                        humans[i].GetComponent<GoToAttackHuman>().SetTarget(alienPlanetSelected);
-                            /*new Vector2(alienPlanetSelected.transform.position.x + Random.insideUnitCircle.x * (alienPlanetSelected.transform.localScale.x / 2f),
-                                alienPlanetSelected.transform.position.y + Random.insideUnitCircle.y * (alienPlanetSelected.transform.localScale.x / 2f));*/
-                        humans[i].GetComponent<HumanJob>().SetIsAttacking();
-                    }
-                }
-            }
-        }     
+            int x = (int)Mathf.Pow(sq, 0.5f);
+            return (int)Mathf.Pow(x + 1, 2);
+        }
+        else
+        {
+            return 9;
+        }
+
     }
 }
