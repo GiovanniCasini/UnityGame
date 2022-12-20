@@ -11,8 +11,8 @@ public class Manager : MonoBehaviour
     public GameObject mineralResource;
     public List<GameObject> mineralResources;
 
-    public GameObject waterResource;
-    public List<GameObject> waterResources;
+    public GameObject iceResource;
+    public List<GameObject> iceResources;
 
     public GameObject gasResource;
     public List<GameObject> gasResources;
@@ -34,11 +34,11 @@ public class Manager : MonoBehaviour
     public Slider harvestingSlider;
     public Slider inFormationSlider;
     public Slider mineralResourcesSlider;
-    public Slider waterResourcesSlider;
+    public Slider iceResourcesSlider;
     public Slider gasResourcesSlider;
 
     public GameObject mineralPlanet;
-    public GameObject waterPlanet;
+    public GameObject icePlanet;
     public GameObject gasPlanet;
     public List<GameObject> planetsToHarvest;
     public List<GameObject> selectedPlanetsToHarvest;
@@ -79,7 +79,7 @@ public class Manager : MonoBehaviour
             humans[i].GetComponent<Movement>().radius = humanPlanetScale / 2f;
 
         mineralResources = new List<GameObject>();
-        waterResources = new List<GameObject>();
+        iceResources = new List<GameObject>();
         gasResources = new List<GameObject>();
 
         for (int j = 0; j < 3; j++)
@@ -106,7 +106,7 @@ public class Manager : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
-            planetsToHarvest.Add(Instantiate(waterPlanet, new Vector3(Random.Range(-70f, 70f), Random.Range(-70f, 70f), 0f), transform.rotation));          
+            planetsToHarvest.Add(Instantiate(icePlanet, new Vector3(Random.Range(-70f, 70f), Random.Range(-70f, 70f), 0f), transform.rotation));          
         }
         for (int i = 0; i < 10; i++)
         {
@@ -181,7 +181,7 @@ public class Manager : MonoBehaviour
             RaycastHit2D hit = Physics2D.Raycast(raycastPosition, Vector2.zero);
             if (hit.collider != null)
             {
-                if (hit.collider.gameObject.tag == "MineralPlanet" || hit.collider.gameObject.tag == "WaterPlanet" || hit.collider.gameObject.tag == "GasPlanet")
+                if (hit.collider.gameObject.tag == "MineralPlanet" || hit.collider.gameObject.tag == "IcePlanet" || hit.collider.gameObject.tag == "GasPlanet")
                 {
                     if (selectedPlanetsToHarvest.IndexOf(hit.collider.gameObject) == -1)
                     {
@@ -946,9 +946,9 @@ public class Manager : MonoBehaviour
         mineralResourcesSlider.value++;
     }
 
-    public void AddWaterResource()
+    public void AddIceResource()
     {
-        waterResourcesSlider.value++;
+        iceResourcesSlider.value++;
     }
 
     public void AddGasResource()

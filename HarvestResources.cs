@@ -15,7 +15,7 @@ public class HarvestResources : MonoBehaviour
     public bool taken = false;
     private Manager manager;
     public bool planetOutOfResources = false;
-    public bool waterResource = false;
+    public bool iceResource = false;
     public bool mineralResource = false;
     public bool gasResource = false;
 
@@ -54,12 +54,12 @@ public class HarvestResources : MonoBehaviour
                 manager.AddMineralResource();
                 mineralResource = false;
             }
-            else if (taken && waterResource)
+            else if (taken && iceResource)
             {
                 taken = false;
                 Destroy(transform.GetChild(0).gameObject);
-                manager.AddWaterResource();
-                waterResource = false;
+                manager.AddIceResource();
+                iceResource = false;
             }
             else if (taken && gasResource)
             {
@@ -92,12 +92,12 @@ public class HarvestResources : MonoBehaviour
                     manager.AddMineralResource();
                     mineralResource = false;
                 }
-                else if (taken && waterResource)
+                else if (taken && iceResource)
                 {
                     taken = false;
                     Destroy(transform.GetChild(0).gameObject);
-                    manager.AddWaterResource();
-                    waterResource = false;
+                    manager.AddIceResource();
+                    iceResource = false;
                 }
                 else if (taken && gasResource)
                 {

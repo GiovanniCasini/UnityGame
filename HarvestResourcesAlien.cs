@@ -15,7 +15,7 @@ public class HarvestResourcesAlien : MonoBehaviour
     public bool taken = false;
     private Manager manager;
     public bool planetOutOfResources = false;
-    public bool waterResource = false;
+    public bool iceResource = false;
     public bool mineralResource = false;
     public bool gasResource = false;
 
@@ -53,11 +53,11 @@ public class HarvestResourcesAlien : MonoBehaviour
                 Destroy(transform.GetChild(0).gameObject);
                 mineralResource = false;
             }
-            else if (taken && waterResource)
+            else if (taken && iceResource)
             {
                 taken = false;
                 Destroy(transform.GetChild(0).gameObject);
-                waterResource = false;
+                iceResource = false;
             }
             else if (taken && gasResource)
             {
@@ -79,11 +79,11 @@ public class HarvestResourcesAlien : MonoBehaviour
                 Destroy(transform.GetChild(0).gameObject);
                 mineralResource = false;
             }
-            else if (taken && waterResource)
+            else if (taken && iceResource)
             {
                 taken = false;
                 Destroy(transform.GetChild(0).gameObject);
-                waterResource = false;
+                iceResource = false;
             }
             else if (taken && gasResource)
             {
