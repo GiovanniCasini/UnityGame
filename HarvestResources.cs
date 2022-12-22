@@ -73,9 +73,7 @@ public class HarvestResources : MonoBehaviour
         {
             if (manager.selectedPlanetsToHarvest.Count > 0)
             {
-                SetPlanet(manager.HarvestingPlanetsDistributor(), 
-                    new Vector3(manager.humanPlanet.transform.position.x + Random.insideUnitCircle.x * (manager.humanPlanetScale / 2f),
-                    manager.humanPlanet.transform.position.y + Random.insideUnitCircle.y * (manager.humanPlanetScale / 2f), 0));
+                SetPlanet(manager.HarvestingPlanetsDistributor(), manager.WhereAmIFrom(gameObject));
                 startReturn = false;
                 startHarvesting = true;
                 planetOutOfResources = false;

@@ -17,9 +17,9 @@ public class HarvestingSlider : MonoBehaviour
 
     public void UpdateText(float val)
     {
-        if (slider.value + FindObjectOfType<InFormationSlider>().lastValue > FindObjectOfType<Manager>().getNumHumans()
-            || (FindObjectOfType<Manager>().getFreeHumans() == 0 && slider.value >= lastValue)
-            || slider.value - FindObjectOfType<Manager>().getHarvestingHumans() > FindObjectOfType<Manager>().getFreeHumans())
+        if (slider.value + FindObjectOfType<InFormationSlider>().lastValue > FindObjectOfType<Manager>().GetNumHumans()
+            || (FindObjectOfType<Manager>().GetFreeHumans() == 0 && slider.value >= lastValue)
+            || slider.value - FindObjectOfType<Manager>().GetHarvestingHumans() > FindObjectOfType<Manager>().GetFreeHumans())
         {
             slider.value = lastValue;
         }

@@ -18,7 +18,8 @@ public class GoToAttackAlien : MonoBehaviour
         transform.position = Vector2.MoveTowards(transform.position, coords, attackingVelocity * Time.deltaTime);
         if (transform.position.x == coords.x && transform.position.y == coords.y)
         {
-            coords = new Vector2(Random.insideUnitCircle.x * manager.humanPlanetScale, Random.insideUnitCircle.y * manager.humanPlanetScale);
+            coords = new Vector2(Random.insideUnitCircle.x * manager.humanPlanets[0].transform.localScale.x, 
+                Random.insideUnitCircle.y * manager.humanPlanets[0].transform.localScale.x);
         }
     }
 }
