@@ -19,12 +19,17 @@ public class HarvestResources : MonoBehaviour
     public bool mineralResource = false;
     public bool gasResource = false;
 
+    public int myPlanetId = -1;
+    public Vector3 myPlanetCoords;
+
     private void Start()
     {
         //startingPos = transform.position;
         //dropPosition = startingPos;
         manager = FindObjectOfType<Manager>();
         startHarvesting = true;
+        myPlanetId = manager.GetMyPlanetId(gameObject);
+        myPlanetCoords = manager.WhereAmIFrom(gameObject);
     }
 
     void Update()
@@ -71,9 +76,9 @@ public class HarvestResources : MonoBehaviour
         }
         if (transform.position == dropPosition && planetOutOfResources)
         {
-            if (manager.selectedPlanetsToHarvest.Count > 0)
+            if (manager.selectedPlanetsToHarvestHumanList[myPlanetId].Count > 0)
             {
-                SetPlanet(manager.HarvestingPlanetsDistributor(), manager.WhereAmIFrom(gameObject));
+                SetPlanet(manager.HarvestingPlanetsDistributor(myPlanetId), myPlanetCoords);
                 startReturn = false;
                 startHarvesting = true;
                 planetOutOfResources = false;
