@@ -11,8 +11,6 @@ public class SliderValue : MonoBehaviour
 
     void Start()
     {
-        //slider.maxValue = FindObjectOfType<Manager>().getCountEntities();
-        //UpdateText(slider.value);
         slider.onValueChanged.AddListener(UpdateText);
     }
 

@@ -116,8 +116,8 @@ public class HarvestResources : MonoBehaviour
         {
             GetComponent<Movement>().enabled = true;
             GetComponent<HumanJob>().SetIsFree();
-            manager.UpdateSlider();
-            manager.UpdateHarvestingSlider();
+            //manager.UpdateSlider();
+            //manager.UpdateHarvestingSlider();
             if (taken)
             {
                 Destroy(transform.GetChild(0).gameObject);
@@ -128,15 +128,6 @@ public class HarvestResources : MonoBehaviour
             taken = false;
             enabled = false;
         }
-        
-        //if (transform.position == startingPos && planetOutOfResources)
-        //{
-        //    // GetComponent<Collider2D>().enabled = true;
-        //    GetComponent<Movement>().enabled = true;
-        //    startReturn = false;
-        //    startHarvesting = false;
-        //    enabled = false;
-        //}
     }
 
     public void SetPlanet(Vector3 coords, Vector3 myPlanet)

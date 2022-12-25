@@ -9,32 +9,77 @@ public class HarvestingSlider : MonoBehaviour
     public Slider slider;
     public TextMeshProUGUI totalHumans;
     public int lastValue = 0;
+    public int lastValueLocal = 0;
+    public Manager manager;
 
     void Start()
     {
+        manager = FindObjectOfType<Manager>();
         slider.onValueChanged.AddListener(UpdateText);
     }
 
     public void UpdateText(float val)
     {
-        if (slider.value + FindObjectOfType<InFormationSlider>().lastValue > FindObjectOfType<Manager>().GetNumHumans()
-            || (FindObjectOfType<Manager>().GetFreeHumans() == 0 && slider.value >= lastValue)
-            || slider.value - FindObjectOfType<Manager>().GetHarvestingHumans() > FindObjectOfType<Manager>().GetFreeHumans())
+        if (manager.selectedHumanPlanet == null) // global
         {
-            slider.value = lastValue;
+            if (!manager.updatingGlobalSlider)
+            {
+                if (slider.value + manager.GetInFormationOrGoingOrAttackingHumans() > manager.GetNumHumans()
+                    || (manager.GetFreeHumans() == 0 && slider.value >= lastValue)
+                    || slider.value - manager.GetHarvestingHumans() > manager.GetFreeHumans())
+                {
+                    slider.value = lastValue;
+                }
+                else
+                {
+                    totalHumans.text = slider.value.ToString();
+                    if (slider.value > lastValue)
+                    {
+                        manager.AddHarvesters((int)slider.value);
+                    }
+                    if (slider.value < lastValue)
+                    {
+                        manager.RemoveHarvesters((int)slider.value);
+                    }
+                    lastValue = (int)slider.value;
+                }
+            }
+            else
+            {
+                lastValue = manager.GetHarvestingHumans();
+                totalHumans.text = slider.value.ToString();
+            }
         }
-        else
+        else // local
         {
-            totalHumans.text = slider.value.ToString();
-            if (slider.value > lastValue)
+            int index = manager.humanPlanets.IndexOf(manager.selectedHumanPlanet);
+            if (!manager.updatingLocalSlider)
             {
-                FindObjectOfType<Manager>().AddHarvesters((int)slider.value);
+                if (slider.value + manager.GetInFormationOrGoingOrAttackingHumans(index) > manager.GetNumHumans(index)
+                    || (manager.GetFreeHumans(index) == 0 && slider.value >= lastValueLocal)
+                    || slider.value - manager.GetHarvestingHumans(index) > manager.GetFreeHumans(index))
+                {
+                    slider.value = lastValueLocal;
+                }
+                else
+                {
+                    totalHumans.text = slider.value.ToString();
+                    if (slider.value > lastValueLocal)
+                    {
+                        manager.AddHarvesters((int)slider.value);
+                    }
+                    if (slider.value < lastValueLocal)
+                    {
+                        manager.RemoveHarvesters((int)slider.value);
+                    }
+                    lastValueLocal = (int)slider.value;
+                }
             }
-            if (slider.value < lastValue)
+            else
             {
-                FindObjectOfType<Manager>().RemoveHarvesters((int)slider.value);
+                lastValueLocal = manager.GetHarvestingHumans(index);
+                totalHumans.text = slider.value.ToString();
             }
-            lastValue = (int)slider.value;
         }
     }
 }
