@@ -30,8 +30,6 @@ public class Manager : MonoBehaviour
     public Sprite shieldImage;
     public Sprite swordImage;
     public Button defOrAttButton;
-    public bool defenceOrAttackButton = true; // true=defense, false=attack
-    public List<bool> defenceOrAttackButtonLocal = new List<bool>();
     public List<GameObject> dottedLinesAttackingHumans = new List<GameObject>();
     public List<GameObject> selectedAlienPlanetToAttack = new List<GameObject>();
     public List<GameObject> humanDefendersOrAttackers = new List<GameObject>();
@@ -104,7 +102,7 @@ public class Manager : MonoBehaviour
         indexPlanetToHarvest.Add(-1);
         selectedAlienPlanetToAttack.Add(null);
         dottedLinesAttackingHumans.Add(null);
-        defenceOrAttackButtonLocal.Add(true);
+        //defenceOrAttackButtonLocal.Add(true);
 
         for (int i = 0; i < numStartingHumans; i++)
             humans.Add(Instantiate(human, humanPlanets[0].transform.position, transform.rotation));
@@ -123,7 +121,7 @@ public class Manager : MonoBehaviour
             indexPlanetToHarvest.Add(-1);
             selectedAlienPlanetToAttack.Add(null);
             dottedLinesAttackingHumans.Add(null);
-            defenceOrAttackButtonLocal.Add(true);
+            //defenceOrAttackButtonLocal.Add(true);
             numStartingHumans = Random.Range(20, 50);
             for (int i = 0; i < numStartingHumans; i++)
                 humans.Add(Instantiate(human, humanPlanets[k].transform.position, transform.rotation));
@@ -250,14 +248,6 @@ public class Manager : MonoBehaviour
                         UpdateHarvestingSlider(humanPlanets.IndexOf(selectedHumanPlanet));
                         UpdateInFormationSlider(humanPlanets.IndexOf(selectedHumanPlanet));
                         updatingLocalSlider = false;
-                        if (defenceOrAttackButtonLocal[humanPlanets.IndexOf(selectedHumanPlanet)])
-                        {
-                            defOrAttButton.GetComponent<Image>().sprite = shieldImage;
-                        }
-                        else
-                        {
-                            defOrAttButton.GetComponent<Image>().sprite = swordImage;
-                        }
                         if (planetPanel.activeSelf)
                         {
                             int index = humanPlanets.IndexOf(selectedHumanPlanet);
@@ -283,14 +273,6 @@ public class Manager : MonoBehaviour
                         UpdateHarvestingSlider();
                         UpdateInFormationSlider();
                         updatingGlobalSlider = false;
-                        if (defenceOrAttackButton)
-                        {
-                            defOrAttButton.GetComponent<Image>().sprite = shieldImage;
-                        }
-                        else
-                        {
-                            defOrAttButton.GetComponent<Image>().sprite = swordImage;
-                        }
                         if (planetPanel.activeSelf)
                         {
                             planetaryNameTM.text = planetaryName;
@@ -349,7 +331,7 @@ public class Manager : MonoBehaviour
                         Destroy(dottedLinesAttackingHumans[index]);
                         dottedLinesAttackingHumans[index] = null;
                         selectedAlienPlanetToAttack[index] = null;
-                        AttackingAborted(index);
+                        HumansGoDefend(index);
                     }
                     else // if clicked on an alien planet but there is another planet already selected, interrupt attack and attack the new alien planet
                     {
@@ -614,83 +596,6 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void DefenseOrAttackButton() // on click function for button, true=defense, false=attack
-    {
-        if (selectedHumanPlanet == null) // no human planet selected
-        {
-            defenceOrAttackButton = !defenceOrAttackButton;
-            if (defenceOrAttackButton) // true=defence
-            {
-                defOrAttButton.GetComponent<Image>().sprite = shieldImage;
-                for (int i = 0; i < humansList.Count; i++)
-                {
-                    defenceOrAttackButtonLocal[i] = true;
-                    HumansGoDefend(i);
-                }
-            }
-            else //false=attack
-            {
-                defOrAttButton.GetComponent<Image>().sprite = swordImage;
-                for (int j = 0; j < humansList.Count; j++)
-                {
-                    defenceOrAttackButtonLocal[j] = false;
-                    for (int i = 0; i < humansList[j].Count; i++)
-                    {
-                        if (humansList[j][i].GetComponent<HumanJob>().inFormation || humansList[j][i].GetComponent<HumanJob>().goingIntoFormation)
-                        {
-                            if (selectedAlienPlanetToAttack[j] != null)
-                            {
-                                humansList[j][i].GetComponent<GoInFormationHuman>().enabled = false;
-                                humansList[j][i].GetComponent<GoToAttackHuman>().enabled = true;
-                                humansList[j][i].GetComponent<GoToAttackHuman>().SetTarget(selectedAlienPlanetToAttack[j]);
-                                humansList[j][i].GetComponent<HumanJob>().SetIsAttacking();
-                            }
-                            else
-                            {
-                                humansList[j][i].GetComponent<GoInFormationHuman>().enabled = false;
-                                humansList[j][i].GetComponent<Movement>().enabled = true;
-                                humansList[j][i].GetComponent<HumanJob>().SetIsAttacking();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        else // human planet selected
-        {
-            int j = humanPlanets.IndexOf(selectedHumanPlanet);
-            defenceOrAttackButtonLocal[j] = !defenceOrAttackButtonLocal[j];
-            if (defenceOrAttackButtonLocal[j]) // true=defence
-            {
-                defOrAttButton.GetComponent<Image>().sprite = shieldImage;
-                HumansGoDefend(j);
-            }
-            else //false=attack
-            {
-                defOrAttButton.GetComponent<Image>().sprite = swordImage;
-                for (int i = 0; i < humansList[j].Count; i++)
-                {
-                    if (humansList[j][i].GetComponent<HumanJob>().inFormation || humansList[j][i].GetComponent<HumanJob>().goingIntoFormation)
-                    {
-                        if (selectedAlienPlanetToAttack[j] != null)
-                        {
-                            humansList[j][i].GetComponent<GoInFormationHuman>().enabled = false;
-                            humansList[j][i].GetComponent<GoToAttackHuman>().enabled = true;
-                            humansList[j][i].GetComponent<GoToAttackHuman>().SetTarget(selectedAlienPlanetToAttack[j]);
-                            humansList[j][i].GetComponent<HumanJob>().SetIsAttacking();
-                        }
-                        else
-                        {
-                            humansList[j][i].GetComponent<GoInFormationHuman>().enabled = false;
-                            humansList[j][i].GetComponent<Movement>().enabled = true;
-                            humansList[j][i].GetComponent<HumanJob>().SetIsAttacking();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
     public void HarvestersStartHarvesting(int j) // if there are harvesters but no planets selected for harvesting and a new planet to harvest is selected
     {
         for (int i = 0; i < humansList[j].Count; i++)
@@ -710,10 +615,11 @@ public class Manager : MonoBehaviour
     {
         for (int i = 0; i < humansList[j].Count; i++)
         {
-            if (humansList[j][i].GetComponent<HumanJob>().attacking)
+            if (humansList[j][i].GetComponent<HumanJob>().attacking || humansList[j][i].GetComponent<HumanJob>().inFormation || humansList[j][i].GetComponent<HumanJob>().goingIntoFormation)
             {
                 humansList[j][i].GetComponent<Movement>().enabled = false;
                 humansList[j][i].GetComponent<GoToAttackHuman>().enabled = true;
+                humansList[j][i].GetComponent<HumanJob>().SetIsAttacking();
                 humansList[j][i].GetComponent<GoToAttackHuman>().SetTarget(selectedAlienPlanetToAttack[j]);
                 humansList[j][i].GetComponent<CombatModeHuman>().StartCombatModeHuman();
             }
@@ -1237,29 +1143,17 @@ public class Manager : MonoBehaviour
         {
             if (selectedHumanPlanet == null) // global slider
             {
-                if (defenceOrAttackButton) // go in defence (in formation)
+                int numFG = GetInFormationOrGoingOrAttackingHumans();
+                for (int i = 0; i < num - numFG; i++)
                 {
-                    int numFG = GetInFormationOrGoingHumans();
-                    for (int i = 0; i < num - numFG; i++)
-                    {
-                        FindFreeHumanForDefending();
-                    }
-                }
-                else // go to attack
-                {
-                    int numFGA = GetInFormationOrGoingOrAttackingHumans();
-                    for (int i = 0; i < num - numFGA; i++)
-                    {
-                        FindFreeHumanForAttacking();
-                    }
+                    FindFreeHumanForDefending();
                 }
             }
             else // local slider
             {
                 int index = humanPlanets.IndexOf(selectedHumanPlanet);
-                if (defenceOrAttackButtonLocal[index]) // go in defence (in formation)
+                if (selectedAlienPlanetToAttack[index] == null) // go in defence (in formation)
                 {
-
                     int numFG = GetInFormationOrGoingHumans(index);
                     for (int i = 0; i < num - numFG; i++)
                     {
@@ -1289,7 +1183,7 @@ public class Manager : MonoBehaviour
             {
                 if (k < humansList[j].Count)
                 {
-                    if (humansList[j][k].GetComponent<HumanJob>().free)
+                    if (humansList[j][k].GetComponent<HumanJob>().free && selectedAlienPlanetToAttack[j] == null)
                     {
                         humanDefendersOrAttackers.Add(humansList[j][k]);
                         for (int m = 0; m < humansList[j].Count; m++)
@@ -1304,6 +1198,18 @@ public class Manager : MonoBehaviour
                         humansList[j][k].GetComponent<HumanJob>().free = false;
                         humansList[j][k].GetComponent<Movement>().enabled = false;
                         humansList[j][k].GetComponent<HarvestResources>().ResetHarvester();
+                        UpdateSlider();
+                        found = true;
+                        break;
+                    }
+                    else if (humansList[j][k].GetComponent<HumanJob>().free && selectedAlienPlanetToAttack[j] != null)
+                    {
+                        humanDefendersOrAttackers.Add(humansList[j][k]);
+                        humansList[j][k].GetComponent<Movement>().enabled = false;
+                        humansList[j][k].GetComponent<GoToAttackHuman>().enabled = true;
+                        humansList[j][k].GetComponent<GoToAttackHuman>().SetTarget(selectedAlienPlanetToAttack[j]);
+                        humansList[j][k].GetComponent<HumanJob>().SetIsAttacking();
+                        humansList[j][k].GetComponent<CombatModeHuman>().StartCombatModeHuman();
                         UpdateSlider();
                         found = true;
                         break;
