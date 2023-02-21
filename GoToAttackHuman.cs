@@ -29,6 +29,7 @@ public class GoToAttackHuman : MonoBehaviour
     {
         this.target = target;
         targetCoords = target.transform.position;
-        coords = targetCoords;
+        coords = new Vector2(targetCoords.x + Random.insideUnitCircle.x * target.transform.localScale.x,
+               targetCoords.y + Random.insideUnitCircle.y * target.transform.localScale.x); ;
     }
 }

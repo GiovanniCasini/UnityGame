@@ -29,14 +29,13 @@ public class MineralPlanet : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        if ((resources <= startingResources / 2) && !alreadyChangedImage)
-        {
-            alreadyChangedImage = true;
-            GetComponent<SpriteRenderer>().sprite = halfConsumedMineralPlanet;
-        }
-
         if (resources > 0)
         {
+            if ((resources <= startingResources / 2) && !alreadyChangedImage)
+            {
+                alreadyChangedImage = true;
+                GetComponent<SpriteRenderer>().sprite = halfConsumedMineralPlanet;
+            }
             if (collision.tag == "Human" && collision.GetComponent<HumanJob>().harvesting && !collision.GetComponent<HarvestResources>().taken)
             {
                 mineralResources.Add(Instantiate(mineralResource, collision.transform.position, collision.transform.rotation));
@@ -71,6 +70,7 @@ public class MineralPlanet : MonoBehaviour
             GetComponent<SpriteRenderer>().sprite = consumedMineralPlanet;
             FindObjectOfType<Manager>().EndHarvesting(gameObject);
             GetComponent<CircleCollider2D>().enabled = false;
+            Destroy(transform.GetChild(0).gameObject);
         }
     }
 }

@@ -29,14 +29,13 @@ public class IcePlanet : MonoBehaviour
 
     public void OnTriggerEnter2D(Collider2D collision)
     {
-        if ((resources <= (startingResources / 2)) && !alreadyChangedImage)
-        {
-            alreadyChangedImage = true;
-            GetComponent<SpriteRenderer>().sprite = halfConsumedIcePlanet;
-        }
-
         if (resources > 0)
         {
+            if ((resources <= (startingResources / 2)) && !alreadyChangedImage)
+            {
+                alreadyChangedImage = true;
+                GetComponent<SpriteRenderer>().sprite = halfConsumedIcePlanet;
+            }
             if (collision.tag == "Human" && collision.GetComponent<HumanJob>().harvesting && !collision.GetComponent<HarvestResources>().taken)
             {
                 iceResources.Add(Instantiate(iceResource, collision.transform.position, collision.transform.rotation));
@@ -71,6 +70,7 @@ public class IcePlanet : MonoBehaviour
             GetComponent<SpriteRenderer>().sprite = consumedIcePlanet;
             FindObjectOfType<Manager>().EndHarvesting(gameObject);
             GetComponent<CircleCollider2D>().enabled = false;
+            Destroy(transform.GetChild(0).gameObject);
         }
     }
 }

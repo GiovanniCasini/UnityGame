@@ -9,7 +9,6 @@ public class HarvestingSlider : MonoBehaviour
     public Slider slider;
     public TextMeshProUGUI totalHumans;
     public int lastValue = 0;
-    public int lastValueLocal = 0;
     public Manager manager;
 
     void Start()
@@ -56,28 +55,28 @@ public class HarvestingSlider : MonoBehaviour
             if (!manager.updatingLocalSlider)
             {
                 if (slider.value + manager.GetInFormationOrGoingOrAttackingHumans(index) > manager.GetNumHumans(index)
-                    || (manager.GetFreeHumans(index) == 0 && slider.value >= lastValueLocal)
+                    || (manager.GetFreeHumans(index) == 0 && slider.value >= lastValue)
                     || slider.value - manager.GetHarvestingHumans(index) > manager.GetFreeHumans(index))
                 {
-                    slider.value = lastValueLocal;
+                    slider.value = lastValue;
                 }
                 else
                 {
                     totalHumans.text = slider.value.ToString();
-                    if (slider.value > lastValueLocal)
+                    if (slider.value > lastValue)
                     {
                         manager.AddHarvesters((int)slider.value);
                     }
-                    if (slider.value < lastValueLocal)
+                    if (slider.value < lastValue)
                     {
                         manager.RemoveHarvesters((int)slider.value);
                     }
-                    lastValueLocal = (int)slider.value;
+                    lastValue = (int)slider.value;
                 }
             }
             else
             {
-                lastValueLocal = manager.GetHarvestingHumans(index);
+                lastValue = manager.GetHarvestingHumans(index);
                 totalHumans.text = slider.value.ToString();
             }
         }

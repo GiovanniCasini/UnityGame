@@ -33,4 +33,10 @@ public class Movement : MonoBehaviour
 
         transform.position = Vector2.MoveTowards(transform.position, moveTo, characterVelocity * Time.deltaTime);
     }
+
+    public void SetStartPos(Vector2 pos)
+    {
+        directionChangeTime = 0;
+        startPos = pos;
+    }
 }

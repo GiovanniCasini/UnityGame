@@ -9,7 +9,6 @@ public class InFormationSlider : MonoBehaviour
     public Slider slider;
     public TextMeshProUGUI totalHumans;
     public int lastValue = 0;
-    public int lastValueLocal = 0;
     public Manager manager;
 
     void Start()
@@ -33,7 +32,7 @@ public class InFormationSlider : MonoBehaviour
                 else
                 {
                     totalHumans.text = slider.value.ToString();
-                    if (slider.value > lastValue)
+                    if (slider.value > lastValue && !manager.pass)
                     {
                         manager.AddInFormation((int)slider.value);
                     }
@@ -42,6 +41,7 @@ public class InFormationSlider : MonoBehaviour
                         manager.RemoveInFormation((int)slider.value);
                     }
                     lastValue = (int)slider.value;
+                    manager.pass = false;
                 }
             }
             else
@@ -56,28 +56,28 @@ public class InFormationSlider : MonoBehaviour
             if (!manager.updatingLocalSlider)
             {
                 if (slider.value + manager.GetHarvestingHumans(index) > manager.GetNumHumans(index)
-                    || (manager.GetFreeHumans(index) == 0 && slider.value >= lastValueLocal)
+                    || (manager.GetFreeHumans(index) == 0 && slider.value >= lastValue)
                     || slider.value - manager.GetInFormationOrGoingOrAttackingHumans(index) > manager.GetFreeHumans(index))
                 {
-                    slider.value = lastValueLocal;
+                    slider.value = lastValue;
                 }
                 else
                 {
                     totalHumans.text = slider.value.ToString();
-                    if (slider.value > lastValueLocal)
+                    if (slider.value > lastValue)
                     {
                         manager.AddInFormation((int)slider.value);
                     }
-                    if (slider.value < lastValueLocal)
+                    if (slider.value < lastValue)
                     {
                         manager.RemoveInFormation((int)slider.value);
                     }
-                    lastValueLocal = (int)slider.value;
+                    lastValue = (int)slider.value;
                 }
             }
             else
             {
-                lastValueLocal = manager.GetInFormationOrGoingOrAttackingHumans(index);
+                lastValue = manager.GetInFormationOrGoingOrAttackingHumans(index);
                 totalHumans.text = slider.value.ToString();
             }
         }
