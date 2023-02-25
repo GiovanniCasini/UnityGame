@@ -92,7 +92,7 @@ public class Manager : MonoBehaviour
     public TMP_Text rateOfFireTM;
     public TMP_Text speedTM;
 
-    public bool pass = false;
+    public bool pass = false; // used in slider scripts
 
     void Start()
     {
@@ -390,8 +390,14 @@ public class Manager : MonoBehaviour
                         }
                         if (count == 1) // check if there is only one human planet attacking the alien planet, if so interrupt conquest
                         {
-                            AliensFree(alienPlanets.IndexOf(selectedAlienPlanetToAttack[index]));
-                            conqueringAlienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[index])] = false;
+                            if (aliensInFormation[alienPlanets.IndexOf(selectedAlienPlanetToAttack[index])])
+                            {
+                                AliensFree(alienPlanets.IndexOf(selectedAlienPlanetToAttack[index]));
+                            }
+                            if (alienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[index])].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().fillAmount == 0)
+                            {
+                                conqueringAlienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[index])] = false;
+                            }
                         }
 
                         Destroy(dottedLinesAttackingHumans[index]);
@@ -415,8 +421,14 @@ public class Manager : MonoBehaviour
                             }
                             if (count == 1) // check if there is only one human planet attacking the alien planet, if so interrupt conquest
                             {
-                                AliensFree(alienPlanets.IndexOf(selectedAlienPlanetToAttack[index]));
-                                conqueringAlienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[index])] = false;
+                                if (aliensInFormation[alienPlanets.IndexOf(selectedAlienPlanetToAttack[index])])
+                                {
+                                    AliensFree(alienPlanets.IndexOf(selectedAlienPlanetToAttack[index]));
+                                }
+                                if (alienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[index])].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().fillAmount == 0)
+                                {
+                                    conqueringAlienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[index])] = false;
+                                }
                             }
                         }
 
@@ -488,6 +500,7 @@ public class Manager : MonoBehaviour
     IEnumerator ConqueringHumanPlanet(int index)
     {
         GameObject humanPlanet = humanPlanets[index];
+        bool startedIncreasingRing = false;
         while (true)
         {
             Debug.Log("H");
@@ -524,7 +537,37 @@ public class Manager : MonoBehaviour
             int count = countAliens - countHumans;
             humanPlanets[i].transform.GetChild(0).GetComponent<Canvas>().enabled = true;
             humanPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(0).GetComponent<Image>().enabled = true;
-            humanPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(0).GetComponent<Image>().fillAmount += 0.005f * count; // increase green ring
+            humanPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(0).GetComponent<Image>().fillAmount += (0.005f * count) - 0.005f; // increase green ring
+
+            if (humanPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(0).GetComponent<Image>().fillAmount > 0 && !startedIncreasingRing)
+            {
+                startedIncreasingRing = true;
+            }
+            else if (humanPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(0).GetComponent<Image>().fillAmount == 0 && startedIncreasingRing)
+            {
+                // if the green ring goes to 0 and there are no attacks towards this human planet then stop the conquest
+                Debug.Log("A");
+                bool thereAreAliensAttackingThisPlanet = false;
+                for (int m = 0; m < aliensList.Count; m++)
+                {
+                    for (int k = 0; k < aliensList[m].Count; k++)
+                    {
+                        if (aliensList[m][k].GetComponent<AlienJob>().attacking && aliensList[m][k].GetComponent<GoToAttackAlien>().target == humanPlanets[i].transform.position)
+                        {
+                            thereAreAliensAttackingThisPlanet = true;
+                            break;
+                        }
+                    }
+                }
+                if (!thereAreAliensAttackingThisPlanet)
+                {
+                    Debug.Log("B");
+                    startedIncreasingRing = false;
+                    conqueringHumanPlanets[i] = false;
+                    yield break;
+                }
+            }
+
             yield return new WaitForSeconds(1f);
 
             i = humanPlanets.IndexOf(humanPlanet);
@@ -598,6 +641,7 @@ public class Manager : MonoBehaviour
     IEnumerator ConqueringAlienPlanet(int index)
     {
         GameObject alienPlanet = alienPlanets[index];
+        bool startedIncreasingRing = false;
         while (true)
         {
             Debug.Log("A");
@@ -634,7 +678,43 @@ public class Manager : MonoBehaviour
             int count = countHumans - countAliens;
             alienPlanets[i].transform.GetChild(0).GetComponent<Canvas>().enabled = true;
             alienPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().enabled = true;
-            alienPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().fillAmount += 0.005f * count; // increase white ring
+            alienPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().fillAmount += (0.005f * count) - 0.005f; // increase white ring
+
+            if (alienPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().fillAmount > 0 && !startedIncreasingRing)
+            {
+                startedIncreasingRing = true;
+                StartAlienDefence(alienPlanets[i].transform.position);
+            }
+            else if (alienPlanets[i].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().fillAmount == 0 && startedIncreasingRing)
+            {
+                // if the white ring goes to 0 and there are no attacks towards this alien planet then free the aliens and stop the conquest
+                bool thereAreHumansAttackingThisPlanet = false;
+                for (int m = 0; m < humansList.Count; m++)
+                {
+                    if (selectedAlienPlanetToAttack[m] != null && selectedAlienPlanetToAttack[m] == alienPlanets[i])
+                    {
+                        thereAreHumansAttackingThisPlanet = true;
+                        break;
+                    }
+                }
+                if (!thereAreHumansAttackingThisPlanet)
+                {
+                    startedIncreasingRing = false;
+                    for (int j = 0; j < aliensList.Count; j++)
+                    {
+                        for (int k = 0; k < aliensList[j].Count; k++)
+                        {
+                            if (aliensList[j][k].GetComponent<AlienJob>().attacking && aliensList[j][k].GetComponent<GoToAttackAlien>().target == alienPlanets[i].transform.position)
+                            {
+                                AliensFree(j);
+                            }
+                        }
+                    }
+                    conqueringAlienPlanets[i] = false;
+                    yield break;
+                }
+            }
+
             yield return new WaitForSeconds(1f);
 
             i = alienPlanets.IndexOf(alienPlanet);
@@ -654,6 +734,7 @@ public class Manager : MonoBehaviour
                         }
                     }
                 }
+
                 // New human planet
                 humans = new List<GameObject>();
                 humanPlanets.Add(Instantiate(humanPlanet, alienPlanets[i].transform.position, transform.rotation));
@@ -694,6 +775,24 @@ public class Manager : MonoBehaviour
                 humanPlanets[humanPlanets.Count - 1].transform.localScale = new Vector3(humanPlanetScale2, humanPlanetScale2, 0f);
                 for (int m = 0; m < humansList[humanPlanets.Count - 1].Count; m++)
                     humansList[humanPlanets.Count - 1][m].GetComponent<Movement>().radius = humanPlanetScale2 / 2f;
+
+                // If there are aliens that are going to defend an alien planet but this one is conquered and becomes an human planet
+                // start the conquest for this new human planet
+                for (int m = 0; m < aliensList.Count; m++)
+                {
+                    for (int k = 0; k < aliensList[m].Count; k++)
+                    {
+                        if (aliensList[m][k].GetComponent<AlienJob>().attacking && aliensList[m][k].GetComponent<GoToAttackAlien>().target == alienPlanets[i].transform.position)
+                        {
+                            if (!conqueringHumanPlanets[humanPlanets.Count - 1])
+                            {
+                                conqueringHumanPlanets[humanPlanets.Count - 1] = true;
+                                StartCoroutine(ConqueringHumanPlanet(humanPlanets.Count - 1));
+                            }
+                            break;
+                        }
+                    }
+                }
 
                 // Destroy alien planet
                 Destroy(alienPlanets[i]);
@@ -978,10 +1077,10 @@ public class Manager : MonoBehaviour
             if (aliensList[i].IndexOf(alien) != -1)
             {
                 aliensList[i].Remove(alien);
+                AlienRetreat(i);
                 break;
             }
         }
-        AlienRetreat();
     }
 
     public void AddAlien(GameObject alienPlanet) // add a new alien to a specific alien planet and increases the size of its alien planet at specific population numbers
@@ -1118,7 +1217,7 @@ public class Manager : MonoBehaviour
         {
             for (int i = 0; i < aliensList.Count; i++)
             {
-                if (!aliensInFormation[i] && aliensList[i].Count > 0)
+                if (!aliensInFormation[i] && !aliensAttacking[i] && aliensList[i].Count > 0)
                 {
                     AlienAttack(i);
                 }
@@ -1149,6 +1248,33 @@ public class Manager : MonoBehaviour
         }
     }
 
+    public void StartAlienDefence(Vector3 posToDefend)
+    {
+        for (int i = 0; i < aliensList.Count; i++)
+        {
+            if (!aliensInFormation[i] && !aliensAttacking[i] && aliensList[i].Count > 0)
+            {
+                AlienDefence(i, posToDefend);
+            }
+        }
+    }
+
+    public void AlienDefence(int index, Vector3 posToDefend)
+    {
+        aliensAttacking[index] = true;
+        aliensInFormation[index] = false;
+        for (int i = 0; i < aliensList[index].Count; i++)
+        {
+            aliensList[index][i].GetComponent<GoInFormationAlien>().enabled = false;
+            AliensStopHarvesting(index);
+            aliensList[index][i].GetComponent<Movement>().enabled = false;
+            aliensList[index][i].GetComponent<CombatModeAlien>().StartCombatModeAlien();
+            aliensList[index][i].GetComponent<GoToAttackAlien>().enabled = true;
+            aliensList[index][i].GetComponent<GoToAttackAlien>().SetTarget(posToDefend);
+            aliensList[index][i].GetComponent<AlienJob>().SetIsAttacking();
+        }
+    }
+
     public void AliensFree(int index) // aliens of a specific alien planet are set free
     {
         aliensAttacking[index] = false;
@@ -1167,16 +1293,19 @@ public class Manager : MonoBehaviour
         Invoke("StartAlienAttack", 25f);
     }
 
-    public void AlienRetreat()
+    public void AlienRetreat(int index) // aliens of a specific planet retreat
     {
-        if (GetNumAliens() < 15)
+        if (aliensAttacking[index])
         {
-            for (int i = 0; i < aliensList.Count; i++)
+            if (GetNumAliens() < 15)
             {
-                AliensFree(i);
+                AliensFree(index);
+                if (humanPlanets[indexLastHumanPlanetAttacked].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(0).GetComponent<Image>().fillAmount == 0)
+                {
+                    conqueringHumanPlanets[indexLastHumanPlanetAttacked] = false;
+                }
             }
-            conqueringHumanPlanets[indexLastHumanPlanetAttacked] = false;
-        }
+        }  
     }
 
     public int GetSmallestHumanPlanet()
@@ -1734,7 +1863,10 @@ public class Manager : MonoBehaviour
                 if (count == 1) // check if there is only one human planet attacking the alien planet, if so interrupt conquest
                 {
                     AliensFree(alienPlanets.IndexOf(selectedAlienPlanetToAttack[j]));
-                    conqueringAlienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[j])] = false;
+                    if (alienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[j])].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().fillAmount == 0)
+                    {
+                        conqueringAlienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[j])] = false;
+                    }
                 }
                 Destroy(dottedLinesAttackingHumans[j]);
                 dottedLinesAttackingHumans[j] = null;
@@ -1771,7 +1903,10 @@ public class Manager : MonoBehaviour
                     if (count == 1) // check if there is only one human planet attacking the alien planet, if so interrupt conquest
                     {
                         AliensFree(alienPlanets.IndexOf(selectedAlienPlanetToAttack[j]));
-                        conqueringAlienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[j])] = false;
+                        if (alienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[j])].transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(1).GetComponent<Image>().fillAmount == 0)
+                        {
+                            conqueringAlienPlanets[alienPlanets.IndexOf(selectedAlienPlanetToAttack[j])] = false;
+                        }
                     }
                     Destroy(dottedLinesAttackingHumans[j]);
                     dottedLinesAttackingHumans[j] = null;
