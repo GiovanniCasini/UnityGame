@@ -6,7 +6,7 @@ public class Movement : MonoBehaviour
     private float latestDirectionChangeTime;
     private float directionChangeTime = 3f;
     public float characterVelocity = 1f;
-    private Vector2 startPos;
+    public Vector2 startPos;
     private Vector2 moveTo;
 
 

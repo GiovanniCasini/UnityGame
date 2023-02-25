@@ -18,7 +18,7 @@ public class MineralPlanet : MonoBehaviour
     public void Start()
     {
         mineralResources = new List<GameObject>();
-        resources = (int)Mathf.Round(Random.Range(100, 500) / 10) * 10;
+        resources = (int)Mathf.Round(Random.Range(10, 50) / 10) * 10;
         startingResources = resources;
         resourcesText.text = resources.ToString();
         float s = Mathf.Log(resources, 10);
