@@ -9,7 +9,7 @@ public class CombatModeAlien : MonoBehaviour
     public GameObject bulletPrefab;
     public bool alreadyStarted = false;
 
-    void Start()
+    void Awake()
     {
         manager = FindObjectOfType<Manager>();
     }

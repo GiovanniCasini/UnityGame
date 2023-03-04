@@ -10,7 +10,7 @@ public class Movement : MonoBehaviour
     private Vector2 moveTo;
 
 
-    void Start()
+    void Awake()
     {
         startPos = transform.position;
         latestDirectionChangeTime = 0f;
