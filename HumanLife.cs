@@ -14,7 +14,7 @@ public class HumanLife : MonoBehaviour
         {
             FindObjectOfType<Manager>().HumanDied(gameObject);
             Instantiate(particlesHumanDeath, transform.position, Quaternion.identity);
-            Destroy(gameObject);
+            //Destroy(gameObject);
         }
     }
 }

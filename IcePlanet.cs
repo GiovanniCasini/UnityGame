@@ -14,6 +14,7 @@ public class IcePlanet : MonoBehaviour
     private bool alreadyChangedImage = false;
     public Sprite halfConsumedIcePlanet;
     public Sprite consumedIcePlanet;
+    public bool firstTime = true;
 
     public void Start()
     {
@@ -65,12 +66,14 @@ public class IcePlanet : MonoBehaviour
             }
         }
 
-        if (resources == 0)
+        if (resources == 0 && firstTime)
         {
+            firstTime = false;
             GetComponent<SpriteRenderer>().sprite = consumedIcePlanet;
             FindObjectOfType<Manager>().EndHarvesting(gameObject);
-            GetComponent<CircleCollider2D>().enabled = false;
-            Destroy(transform.GetChild(0).gameObject);
+            tag = "EmptyResourcePlanet";
+            //GetComponent<CircleCollider2D>().enabled = false;
+            Destroy(transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(2).gameObject);
         }
     }
 }

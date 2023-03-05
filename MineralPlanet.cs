@@ -14,6 +14,7 @@ public class MineralPlanet : MonoBehaviour
     public bool alreadyChangedImage = false;
     public Sprite halfConsumedMineralPlanet;
     public Sprite consumedMineralPlanet;
+    public bool firstTime = true;
 
     public void Start()
     {
@@ -65,12 +66,14 @@ public class MineralPlanet : MonoBehaviour
             }
         }
 
-        if (resources == 0)
+        if (resources == 0 && firstTime)
         {
+            firstTime = false;
             GetComponent<SpriteRenderer>().sprite = consumedMineralPlanet;
             FindObjectOfType<Manager>().EndHarvesting(gameObject);
-            GetComponent<CircleCollider2D>().enabled = false;
-            Destroy(transform.GetChild(0).gameObject);
+            tag = "EmptyResourcePlanet";
+            //GetComponent<CircleCollider2D>().enabled = false;
+            Destroy(transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(2).gameObject);
         }
     }
 }
