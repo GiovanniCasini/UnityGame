@@ -1615,32 +1615,36 @@ public class Manager : MonoBehaviour
         }
     }
 
-    public void IncreaseAlienSpeed(GameObject alienPlanet)
+    public void IncreaseAlienSpeed()
     {
-        int index = alienPlanets.IndexOf(alienPlanet);
-        if (alienPlanetSpeed[index] < 10)
+        for (int index = 0; index < aliensList.Count; index++)
         {
-            alienPlanetSpeed[index] += 1f;
-            for (int i = 0; i < aliensList[index].Count; i++)
+            if (alienPlanetSpeed[index] < 10)
             {
-                aliensList[index][i].GetComponent<Movement>().characterVelocity += 0.5f;
-                aliensList[index][i].GetComponent<HarvestResourcesAlien>().harvestingVelocity += 0.5f;
-                aliensList[index][i].GetComponent<HarvestResourcesAlien>().returnVelocity += 0.5f;
-                aliensList[index][i].GetComponent<GoToAttackAlien>().attackingVelocity += 0.5f;
-                aliensList[index][i].GetComponent<GoInFormationAlien>().InFormationVelocity += 0.5f;
+                alienPlanetSpeed[index] += 1f;
+                for (int i = 0; i < aliensList[index].Count; i++)
+                {
+                    aliensList[index][i].GetComponent<Movement>().characterVelocity += 0.5f;
+                    aliensList[index][i].GetComponent<HarvestResourcesAlien>().harvestingVelocity += 0.5f;
+                    aliensList[index][i].GetComponent<HarvestResourcesAlien>().returnVelocity += 0.5f;
+                    aliensList[index][i].GetComponent<GoToAttackAlien>().attackingVelocity += 0.5f;
+                    aliensList[index][i].GetComponent<GoInFormationAlien>().InFormationVelocity += 0.5f;
+                }
             }
         }
     }
 
-    public void IncreaseAlienRateOfFire(GameObject alienPlanet)
+    public void IncreaseAlienRateOfFire()
     {
-        int index = alienPlanets.IndexOf(alienPlanet);
-        if (alienPlanetROT[index] < 10)
+        for (int index = 0; index < aliensList.Count; index++)
         {
-            alienPlanetROT[index] += 1f;
-            for (int i = 0; i < aliensList[index].Count; i++)
+            if (alienPlanetROT[index] < 10)
             {
-                aliensList[index][i].GetComponent<CombatModeAlien>().rateOfFireAlien -= 0.1f;
+                alienPlanetROT[index] += 1f;
+                for (int i = 0; i < aliensList[index].Count; i++)
+                {
+                    aliensList[index][i].GetComponent<CombatModeAlien>().rateOfFireAlien -= 0.1f;
+                }
             }
         }
     }
@@ -1741,24 +1745,27 @@ public class Manager : MonoBehaviour
 
     public void AlienAttack(int index) // aliens from a specific alien planet start attacking humans
     {
-        aliensAttacking[index] = true;
-        aliensInFormation[index] = false;
-        int planetToAttack = GetSmallestHumanPlanet();
-        indexLastHumanPlanetAttacked = planetToAttack;
-        for (int i = 0; i < aliensList[index].Count; i++)
+        int planetToAttack = GetSmallestHumanPlanet(); // index of smallest human planet
+        if (GetNumAliens() >= humansList[planetToAttack].Count * 1.5f)
         {
-            aliensList[index][i].GetComponent<GoInFormationAlien>().enabled = false;
-            AliensStopHarvesting(index);
-            aliensList[index][i].GetComponent<Movement>().enabled = false;
-            aliensList[index][i].GetComponent<CombatModeAlien>().StartCombatModeAlien();
-            aliensList[index][i].GetComponent<GoToAttackAlien>().enabled = true;
-            aliensList[index][i].GetComponent<GoToAttackAlien>().SetTarget(humanPlanets[planetToAttack].transform.position);
-            aliensList[index][i].GetComponent<AlienJob>().SetIsAttacking();
-        }
-        if (!conqueringHumanPlanets[planetToAttack])
-        {
-            conqueringHumanPlanets[planetToAttack] = true;
-            StartCoroutine(ConqueringHumanPlanet(planetToAttack));
+            aliensAttacking[index] = true;
+            aliensInFormation[index] = false;
+            indexLastHumanPlanetAttacked = planetToAttack;
+            for (int i = 0; i < aliensList[index].Count; i++)
+            {
+                aliensList[index][i].GetComponent<GoInFormationAlien>().enabled = false;
+                AliensStopHarvesting(index);
+                aliensList[index][i].GetComponent<Movement>().enabled = false;
+                aliensList[index][i].GetComponent<CombatModeAlien>().StartCombatModeAlien();
+                aliensList[index][i].GetComponent<GoToAttackAlien>().enabled = true;
+                aliensList[index][i].GetComponent<GoToAttackAlien>().SetTarget(humanPlanets[planetToAttack].transform.position);
+                aliensList[index][i].GetComponent<AlienJob>().SetIsAttacking();
+            }
+            if (!conqueringHumanPlanets[planetToAttack])
+            {
+                conqueringHumanPlanets[planetToAttack] = true;
+                StartCoroutine(ConqueringHumanPlanet(planetToAttack));
+            }
         }
     }
 
@@ -1834,7 +1841,7 @@ public class Manager : MonoBehaviour
 
     public void AlienConquestResourcePlanet(int index) // aliens from a specific alien planet start conquering a resource planet
     {
-        int resourcePlanetToConquest = GetNearestResourcePlanetToConquest();
+        int resourcePlanetToConquest = GetNearestResourcePlanetToConquest(); // it's the same for every alien planet, because is the nearest to alienPlanets[0]
         indexLastResoursePlanetAttackedAliens = resourcePlanetToConquest;
         if (indexLastResoursePlanetAttackedAliens != -1)
         {
@@ -2725,7 +2732,7 @@ public class Manager : MonoBehaviour
         alienMineralResources++;
         if (alienMineralResources > 15 && alienPlanets.Count > 0)
         {
-            IncreaseAlienRateOfFire(alienPlanets[Random.Range(0, alienPlanets.Count)]);
+            IncreaseAlienRateOfFire();
             alienMineralResources = 0;
         }
     }
@@ -2735,7 +2742,7 @@ public class Manager : MonoBehaviour
         alienIceResources++;
         if (alienIceResources > 10 && alienPlanets.Count > 0)
         {
-            AddAlien(alienPlanets[Random.Range(0, alienPlanets.Count)]);
+            AddAlien();
             alienIceResources = 0;
         }
     }
@@ -2745,7 +2752,7 @@ public class Manager : MonoBehaviour
         alienGasResources++;
         if (alienGasResources > 15 && alienPlanets.Count > 0)
         {
-            IncreaseAlienSpeed(alienPlanets[Random.Range(0, alienPlanets.Count)]);
+            IncreaseAlienSpeed();
             alienGasResources = 0;
         }
     }

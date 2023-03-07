@@ -17,7 +17,7 @@ public class GasPlanet : MonoBehaviour
     public bool firstTime = true;
     private Manager manager;
 
-    public void Start()
+    public void Awake()
     {
         gasResources = new List<GameObject>();
         resources = (int)Mathf.Round(Random.Range(50, 150) / 10) * 10;

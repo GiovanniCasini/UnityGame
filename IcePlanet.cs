@@ -17,7 +17,7 @@ public class IcePlanet : MonoBehaviour
     public bool firstTime = true;
     private Manager manager;
 
-    public void Start()
+    public void Awake()
     {
         iceResources = new List<GameObject>();
         resources = (int)Mathf.Round(Random.Range(50, 150) / 10) * 10;

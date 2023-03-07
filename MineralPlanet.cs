@@ -17,7 +17,7 @@ public class MineralPlanet : MonoBehaviour
     public bool firstTime = true;
     private Manager manager;
 
-    public void Start()
+    public void Awake()
     {
         mineralResources = new List<GameObject>();
         resources = (int)Mathf.Round(Random.Range(50, 150) / 10) * 10;
