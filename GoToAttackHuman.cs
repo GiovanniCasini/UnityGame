@@ -5,7 +5,7 @@ using UnityEngine;
 public class GoToAttackHuman : MonoBehaviour
 {
     public Vector2 coords;
-    public float attackingVelocity = 2f;
+    public float attackingVelocity = 1f;
     public Manager manager;
     public Vector3 target;
     public Vector2 targetCoords;

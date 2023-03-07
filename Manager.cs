@@ -17,6 +17,12 @@ public class Manager : MonoBehaviour
     public GameObject selectedHumanPlanet;
     public List<bool> conqueringHumanPlanets = new List<bool>();
 
+    public List<float> requirementIncreasePopulation = new List<float>(); // ice
+    public List<float> humanPlanetSpeed = new List<float>();
+    public List<float> requirementIncreaseSpeed = new List<float>(); // gas
+    public List<float> humanPlanetRateOfFire = new List<float>();
+    public List<float> requirementIncreaseROF = new List<float>(); // minerals
+
     // HUMANS HARVEST
 
     public List<List<GameObject>> dottedLinesHarvestingHumanList = new List<List<GameObject>>();
@@ -46,6 +52,12 @@ public class Manager : MonoBehaviour
     public List<bool> aliensInFormation = new List<bool>();
     public int indexLastHumanPlanetAttacked;
     public int indexLastResoursePlanetAttackedAliens;
+    public List<float> alienPlanetSpeed = new List<float>();
+    public List<float> alienPlanetROT = new List<float>();
+
+    public int alienIceResources = 0;
+    public int alienGasResources = 0;
+    public int alienMineralResources = 0;
 
     public List<List<GameObject>> dottedLinesHarvestingAliensList = new List<List<GameObject>>();
     public List<List<GameObject>> selectedPlanetsToHarvestAlienList = new List<List<GameObject>>();
@@ -86,14 +98,19 @@ public class Manager : MonoBehaviour
     public GameObject selector;
     public List<GameObject> selectors = new List<GameObject>();
 
+    // PANEL
+
     public GameObject planetPanel;
     public GameObject statsPanel;
     public TMP_Text planetaryNameTM;
-    private string planetaryName;
+    private string planetaryName = "My Planetary";
     public TMP_Text populationTM;
-    public TMP_Text spawnRateTM;
-    public TMP_Text rateOfFireTM;
     public TMP_Text speedTM;
+    public TMP_Text rateOfFireTM;
+    public TMP_Text spawnRateTM;
+    public TMP_Text reqIncPopTM;
+    public TMP_Text reqIncSpeedTM;
+    public TMP_Text reqIncROFTM;
 
     public bool pass = false; // used in slider scripts
 
@@ -110,6 +127,11 @@ public class Manager : MonoBehaviour
         selectedPlanetToAttack.Add(null);
         dottedLinesAttackingHumans.Add(null);
         conqueringHumanPlanets.Add(false);
+        humanPlanetSpeed.Add(1);
+        humanPlanetRateOfFire.Add(1);
+        requirementIncreasePopulation.Add(5f);
+        requirementIncreaseSpeed.Add(10f);
+        requirementIncreaseROF.Add(10f);
 
         for (int i = 0; i < numStartingHumans; i++)
             humans.Add(Instantiate(human, humanPlanets[0].transform.position, transform.rotation));
@@ -129,6 +151,11 @@ public class Manager : MonoBehaviour
             selectedPlanetToAttack.Add(null);
             dottedLinesAttackingHumans.Add(null);
             conqueringHumanPlanets.Add(false);
+            humanPlanetSpeed.Add(1);
+            humanPlanetRateOfFire.Add(1);
+            requirementIncreasePopulation.Add(5f);
+            requirementIncreaseSpeed.Add(10f);
+            requirementIncreaseROF.Add(10f);
             numStartingHumans = Random.Range(20, 30);
             for (int i = 0; i < numStartingHumans; i++)
                 humans.Add(Instantiate(human, humanPlanets[k].transform.position, transform.rotation));
@@ -149,6 +176,8 @@ public class Manager : MonoBehaviour
             conqueringAlienPlanets.Add(false);
             aliensAttacking.Add(false);
             aliensInFormation.Add(false);
+            alienPlanetSpeed.Add(1);
+            alienPlanetROT.Add(1);
             numStartingAliens = Random.Range(5, 15);
             for (int i = 0; i < numStartingAliens; i++)
             {
@@ -187,9 +216,6 @@ public class Manager : MonoBehaviour
         harvestingSlider.maxValue = totHumans;
         inFormationSlider.maxValue = totHumans;
 
-        openSlidersButton.gameObject.SetActive(false);
-        closeSlidersButton.gameObject.SetActive(true);
-
         // STARS AND BACKGROUND STARS
 
         Instantiate(star, new Vector3(Random.Range(-50f, 50f), Random.Range(-50f, 50f), 0f), transform.rotation);
@@ -204,61 +230,17 @@ public class Manager : MonoBehaviour
             bg_stars.transform.parent = bg_starsFolder.transform;
         }
 
-        planetaryName = "My Planetary";
         OpenSliders();
 
         /////////////////////
 
         Invoke("StartAlienHarvesting", 3f);
-        //InvokeRepeating("StartAlienAttack", 60f, 60f);
+        InvokeRepeating("StartAlienAttack", 75f, 120f);
+        InvokeRepeating("StartAlienConquestResourcePlanet", 45f, 60f);
     }
 
     void Update()
     {
-        if (Input.GetKeyDown("p"))
-        {
-            Invoke("StartAlienConquestResourcePlanet", 1f);
-        }
-        if (Input.GetKeyDown("n"))
-        {
-            for (int i = 0; i < humansList.Count; i++)
-            {
-                AddHuman(i);
-            }
-        }
-        if (Input.GetKeyDown("m"))
-        {
-            AddAlien();
-        }
-        if (Input.GetKeyDown("f"))
-        {
-            for (int i = 0; i < aliensList.Count; i++)
-            {
-                AliensInFormation(i);
-            }
-        }
-        if (Input.GetKeyDown("g"))
-        {
-            for (int i = 0; i < aliensList.Count; i++)
-            {
-                AliensFree(i);
-            }
-        }
-        if (Input.GetKeyDown("t"))
-        {
-            for (int i = 0; i < aliensList.Count; i++)
-            {
-                AlienAttack(i);
-            }
-        }
-        if (Input.GetKeyDown("h"))
-        {
-            for (int i = 0; i < aliensList.Count; i++)
-            {
-                AliensHarvesting(i);
-            }
-        }
-
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 raycastPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -277,15 +259,20 @@ public class Manager : MonoBehaviour
                         UpdateHarvestingSlider(humanPlanets.IndexOf(selectedHumanPlanet));
                         UpdateInFormationSlider(humanPlanets.IndexOf(selectedHumanPlanet));
                         updatingLocalSlider = false;
+
                         if (planetPanel.activeSelf)
                         {
                             index = humanPlanets.IndexOf(selectedHumanPlanet);
                             planetaryNameTM.text = "Planet " + index;
                             populationTM.text = GetNumHumans(index).ToString();
-                            planetPanel.transform.GetChild(3).gameObject.SetActive(true);
-                            spawnRateTM.text = "1";
-                            rateOfFireTM.text = "1";
-                            speedTM.text = "1";
+                            planetPanel.transform.GetChild(3).gameObject.SetActive(true); // activate stats panel
+                            planetPanel.transform.GetChild(2).transform.GetChild(1).gameObject.SetActive(true); // activate plus sign for population add
+                            planetPanel.transform.GetChild(2).transform.GetChild(2).gameObject.SetActive(true); // activate requirement for population add
+                            speedTM.text = humanPlanetSpeed[index].ToString();
+                            rateOfFireTM.text = humanPlanetRateOfFire[index].ToString();
+                            reqIncPopTM.text = requirementIncreasePopulation[index].ToString();
+                            reqIncSpeedTM.text = requirementIncreaseSpeed[index].ToString();
+                            reqIncROFTM.text = requirementIncreaseROF[index].ToString();
                         }
                     }
                     else if (hit.collider.gameObject == selectedHumanPlanet) // if clicked on the human planet already selected, deselect it
@@ -302,11 +289,14 @@ public class Manager : MonoBehaviour
                         UpdateHarvestingSlider();
                         UpdateInFormationSlider();
                         updatingGlobalSlider = false;
+
                         if (planetPanel.activeSelf)
                         {
                             planetaryNameTM.text = planetaryName;
                             populationTM.text = GetNumHumans().ToString();
-                            planetPanel.transform.GetChild(3).gameObject.SetActive(false);
+                            planetPanel.transform.GetChild(3).gameObject.SetActive(false); // deactivate stats panel
+                            planetPanel.transform.GetChild(2).transform.GetChild(1).gameObject.SetActive(false); // deactivate plus sign for population add
+                            planetPanel.transform.GetChild(2).transform.GetChild(2).gameObject.SetActive(false); // deactivate requirement for population add
                         }
                     }
                     else if (selectedHumanPlanet != null && hit.collider.gameObject != selectedHumanPlanet
@@ -688,20 +678,23 @@ public class Manager : MonoBehaviour
             {
                 humansList[i].Remove(human);
                 Destroy(human);
-                if (humansList[i].Count == 0 && selectedPlanetToAttack[i].tag == "AlienPlanet")
+                if (humansList[i].Count == 0 && selectedPlanetToAttack[i] != null)
                 {
-                    int count = 0;
-                    for (int j = 0; j < selectedPlanetToAttack.Count; j++)
+                    if (selectedPlanetToAttack[i].tag == "AlienPlanet")
                     {
-                        if (selectedPlanetToAttack[j] == selectedPlanetToAttack[i] && humansList[j].Count != 0)
+                        int count = 0;
+                        for (int j = 0; j < selectedPlanetToAttack.Count; j++)
                         {
-                            count++;
+                            if (selectedPlanetToAttack[j] == selectedPlanetToAttack[i] && humansList[j].Count != 0)
+                            {
+                                count++;
+                            }
                         }
-                    }
-                    if (count == 0)
-                    {
-                        AliensFree(alienPlanets.IndexOf(selectedPlanetToAttack[i]));
-                    }
+                        if (count == 0)
+                        {
+                            AliensFree(alienPlanets.IndexOf(selectedPlanetToAttack[i]));
+                        }
+                    }                
                 }
                 if (selectedHumanPlanet == null)
                 {
@@ -804,6 +797,8 @@ public class Manager : MonoBehaviour
                 conqueringAlienPlanets.Add(false);
                 aliensAttacking.Add(false);
                 aliensInFormation.Add(false);
+                alienPlanetSpeed.Add(1);
+                alienPlanetROT.Add(1);
                 numStartingAliens = Random.Range(2, 5);
                 for (int m = 0; m < numStartingAliens; m++)
                 {
@@ -849,6 +844,11 @@ public class Manager : MonoBehaviour
                 dottedLinesAttackingHumans.RemoveAt(i);
                 humansList.RemoveAt(i);
                 conqueringHumanPlanets.RemoveAt(i);
+                humanPlanetSpeed.RemoveAt(i);
+                humanPlanetRateOfFire.RemoveAt(i);
+                requirementIncreasePopulation.RemoveAt(i);
+                requirementIncreaseSpeed.RemoveAt(i);
+                requirementIncreaseROF.RemoveAt(i);
 
                 yield break;
             }
@@ -938,6 +938,11 @@ public class Manager : MonoBehaviour
                 selectedPlanetToAttack.Add(null);
                 dottedLinesAttackingHumans.Add(null);
                 conqueringHumanPlanets.Add(false);
+                humanPlanetSpeed.Add(1);
+                humanPlanetRateOfFire.Add(1);
+                requirementIncreasePopulation.Add(5f);
+                requirementIncreaseSpeed.Add(10f);
+                requirementIncreaseROF.Add(10f);
                 numStartingHumans = Random.Range(2, 5);
                 for (int m = 0; m < numStartingHumans; m++)
                     humans.Add(Instantiate(human, humanPlanets[humanPlanets.Count - 1].transform.position, transform.rotation));
@@ -1002,6 +1007,8 @@ public class Manager : MonoBehaviour
                 conqueringAlienPlanets.RemoveAt(i);
                 aliensAttacking.RemoveAt(i);
                 aliensInFormation.RemoveAt(i);
+                alienPlanetSpeed.RemoveAt(i);
+                alienPlanetROT.RemoveAt(i);
 
                 yield break;
             }
@@ -1015,7 +1022,7 @@ public class Manager : MonoBehaviour
         bool itsWhite = false;
         while (true)
         {
-            //Debug.Log("R");
+            Debug.Log("R");
             int i = planetsToHarvest.IndexOf(resourcePlanet);
             if (!conqueringResourcePlanets[i])
             {
@@ -1116,6 +1123,11 @@ public class Manager : MonoBehaviour
                 selectedPlanetToAttack.Add(null);
                 dottedLinesAttackingHumans.Add(null);
                 conqueringHumanPlanets.Add(false);
+                humanPlanetSpeed.Add(1);
+                humanPlanetRateOfFire.Add(1);
+                requirementIncreasePopulation.Add(5f);
+                requirementIncreaseSpeed.Add(10f);
+                requirementIncreaseROF.Add(10f);
                 numStartingHumans = Random.Range(2, 5);
                 for (int m = 0; m < numStartingHumans; m++)
                     humans.Add(Instantiate(human, humanPlanets[humanPlanets.Count - 1].transform.position, transform.rotation));
@@ -1195,6 +1207,8 @@ public class Manager : MonoBehaviour
                 conqueringAlienPlanets.Add(false);
                 aliensAttacking.Add(false);
                 aliensInFormation.Add(false);
+                alienPlanetSpeed.Add(1);
+                alienPlanetROT.Add(1);
                 numStartingAliens = Random.Range(2, 5);
                 for (int m = 0; m < numStartingAliens; m++)
                 {
@@ -1258,38 +1272,6 @@ public class Manager : MonoBehaviour
             }
         }
         return closest;
-    }
-
-    public void AddHuman(int index)
-    {
-        if (humansList[index].Count < 50)
-        {
-            humansList[index].Add(Instantiate(human, humanPlanets[index].transform.position, transform.rotation));
-            int count = humansList[index].Count;
-            humansList[index][count - 1].GetComponent<Movement>().radius = humanPlanets[index].transform.localScale.x / 2f;
-            if (selectedHumanPlanet == null)
-            {
-                int tot = GetNumHumans();
-                slider.maxValue = tot;
-                harvestingSlider.maxValue = tot;
-                inFormationSlider.maxValue = tot;
-                UpdateSlider();
-                UpdateHarvestingSlider();
-                UpdateInFormationSlider();
-            }
-            else
-            {
-                int j = humanPlanets.IndexOf(selectedHumanPlanet);
-                int tot = GetNumHumans(j);
-                slider.maxValue = tot;
-                harvestingSlider.maxValue = tot;
-                inFormationSlider.maxValue = tot;
-                UpdateSlider(j);
-                UpdateHarvestingSlider(j);
-                UpdateInFormationSlider(j);
-            }
-            UpdatePlanet(count, index);
-        }
     }
 
     public void UpdatePlanet(int count, int index) // increases the size of human planet at specific population numbers
@@ -1490,6 +1472,82 @@ public class Manager : MonoBehaviour
         }
     }
 
+    public void AddHuman()
+    {
+        int index = humanPlanets.IndexOf(selectedHumanPlanet);
+        if (humansList[index].Count < 50 && iceResourcesSlider.value >= requirementIncreasePopulation[index])
+        {
+            humansList[index].Add(Instantiate(human, humanPlanets[index].transform.position, transform.rotation));
+            int count = humansList[index].Count;
+            humansList[index][count - 1].GetComponent<Movement>().radius = humanPlanets[index].transform.localScale.x / 2f;
+            iceResourcesSlider.value -= requirementIncreasePopulation[index];
+            requirementIncreasePopulation[index] += 5f;
+            reqIncPopTM.text = requirementIncreasePopulation[index].ToString();
+            if (selectedHumanPlanet == null)
+            {
+                int tot = GetNumHumans();
+                slider.maxValue = tot;
+                harvestingSlider.maxValue = tot;
+                inFormationSlider.maxValue = tot;
+                UpdateSlider();
+                UpdateHarvestingSlider();
+                UpdateInFormationSlider();
+                populationTM.text = tot.ToString();
+            }
+            else
+            {
+                int j = humanPlanets.IndexOf(selectedHumanPlanet);
+                int tot = GetNumHumans(j);
+                slider.maxValue = tot;
+                harvestingSlider.maxValue = tot;
+                inFormationSlider.maxValue = tot;
+                UpdateSlider(j);
+                UpdateHarvestingSlider(j);
+                UpdateInFormationSlider(j);
+                populationTM.text = tot.ToString();
+            }
+            UpdatePlanet(count, index);
+        }
+    } // increase population
+
+    public void IncreaseSpeed()
+    {
+        int index = humanPlanets.IndexOf(selectedHumanPlanet);
+        if (humanPlanetSpeed[index] < 10 && gasResourcesSlider.value >= requirementIncreaseSpeed[index])
+        {
+            gasResourcesSlider.value -= requirementIncreaseSpeed[index];
+            requirementIncreaseSpeed[index] += 10f;
+            reqIncSpeedTM.text = requirementIncreaseSpeed[index].ToString();
+            humanPlanetSpeed[index] += 1f;
+            for (int i = 0; i < humansList[index].Count; i++)
+            {
+                humansList[index][i].GetComponent<Movement>().characterVelocity += 0.5f;
+                humansList[index][i].GetComponent<HarvestResources>().harvestingVelocity += 0.5f;
+                humansList[index][i].GetComponent<HarvestResources>().returnVelocity += 0.5f;
+                humansList[index][i].GetComponent<GoToAttackHuman>().attackingVelocity += 0.5f;
+                humansList[index][i].GetComponent<GoInFormationHuman>().inFormationVelocity += 0.5f;
+            }
+            speedTM.text = humanPlanetSpeed[index].ToString();
+        }
+    }
+
+    public void IncreaseRateOfFire()
+    {
+        int index = humanPlanets.IndexOf(selectedHumanPlanet);
+        if (humanPlanetRateOfFire[index] < 10 && mineralResourcesSlider.value >= requirementIncreaseROF[index])
+        {
+            gasResourcesSlider.value -= requirementIncreaseROF[index];
+            requirementIncreaseROF[index] += 10f;
+            reqIncROFTM.text = requirementIncreaseROF[index].ToString();
+            humanPlanetRateOfFire[index] += 1f;
+            for (int i = 0; i < humansList[index].Count; i++)
+            {
+                humansList[index][i].GetComponent<CombatModeHuman>().rateOfFire -= 0.1f;
+            }
+            rateOfFireTM.text = humanPlanetRateOfFire[index].ToString();
+        }
+    }
+
 
     // ALIENS FUNCTIONS
 
@@ -1553,6 +1611,36 @@ public class Manager : MonoBehaviour
                     }
                 }
                 RecalculateFormationAliens(i);
+            }
+        }
+    }
+
+    public void IncreaseAlienSpeed(GameObject alienPlanet)
+    {
+        int index = alienPlanets.IndexOf(alienPlanet);
+        if (alienPlanetSpeed[index] < 10)
+        {
+            alienPlanetSpeed[index] += 1f;
+            for (int i = 0; i < aliensList[index].Count; i++)
+            {
+                aliensList[index][i].GetComponent<Movement>().characterVelocity += 0.5f;
+                aliensList[index][i].GetComponent<HarvestResourcesAlien>().harvestingVelocity += 0.5f;
+                aliensList[index][i].GetComponent<HarvestResourcesAlien>().returnVelocity += 0.5f;
+                aliensList[index][i].GetComponent<GoToAttackAlien>().attackingVelocity += 0.5f;
+                aliensList[index][i].GetComponent<GoInFormationAlien>().InFormationVelocity += 0.5f;
+            }
+        }
+    }
+
+    public void IncreaseAlienRateOfFire(GameObject alienPlanet)
+    {
+        int index = alienPlanets.IndexOf(alienPlanet);
+        if (alienPlanetROT[index] < 10)
+        {
+            alienPlanetROT[index] += 1f;
+            for (int i = 0; i < aliensList[index].Count; i++)
+            {
+                aliensList[index][i].GetComponent<CombatModeAlien>().rateOfFireAlien -= 0.1f;
             }
         }
     }
@@ -1746,24 +1834,27 @@ public class Manager : MonoBehaviour
 
     public void AlienConquestResourcePlanet(int index) // aliens from a specific alien planet start conquering a resource planet
     {
-        aliensAttacking[index] = true;
-        aliensInFormation[index] = false;
         int resourcePlanetToConquest = GetNearestResourcePlanetToConquest();
         indexLastResoursePlanetAttackedAliens = resourcePlanetToConquest;
-        for (int i = 0; i < aliensList[index].Count; i++)
+        if (indexLastResoursePlanetAttackedAliens != -1)
         {
-            aliensList[index][i].GetComponent<GoInFormationAlien>().enabled = false;
-            AliensStopHarvesting(index);
-            aliensList[index][i].GetComponent<Movement>().enabled = false;
-            aliensList[index][i].GetComponent<CombatModeAlien>().StartCombatModeAlien();
-            aliensList[index][i].GetComponent<GoToAttackAlien>().enabled = true;
-            aliensList[index][i].GetComponent<GoToAttackAlien>().SetTarget(planetsToHarvest[resourcePlanetToConquest].transform.position);
-            aliensList[index][i].GetComponent<AlienJob>().SetIsAttacking();
-        }
-        if (!conqueringResourcePlanets[resourcePlanetToConquest])
-        {
-            conqueringResourcePlanets[resourcePlanetToConquest] = true;
-            StartCoroutine(ConqueringResourcePlanet(resourcePlanetToConquest));
+            aliensAttacking[index] = true;
+            aliensInFormation[index] = false;
+            for (int i = 0; i < aliensList[index].Count; i++)
+            {
+                aliensList[index][i].GetComponent<GoInFormationAlien>().enabled = false;
+                AliensStopHarvesting(index);
+                aliensList[index][i].GetComponent<Movement>().enabled = false;
+                aliensList[index][i].GetComponent<CombatModeAlien>().StartCombatModeAlien();
+                aliensList[index][i].GetComponent<GoToAttackAlien>().enabled = true;
+                aliensList[index][i].GetComponent<GoToAttackAlien>().SetTarget(planetsToHarvest[resourcePlanetToConquest].transform.position);
+                aliensList[index][i].GetComponent<AlienJob>().SetIsAttacking();
+            }
+            if (!conqueringResourcePlanets[resourcePlanetToConquest])
+            {
+                conqueringResourcePlanets[resourcePlanetToConquest] = true;
+                StartCoroutine(ConqueringResourcePlanet(resourcePlanetToConquest));
+            }
         }
     } 
 
@@ -1786,7 +1877,7 @@ public class Manager : MonoBehaviour
     {
         float minDistance = float.MaxValue;
         float dis;
-        int index = 0;
+        int index = -1;
         for (int i = 0; i < planetsToHarvest.Count; i++)
         {
             if (emptyResourcePlanets[i])
@@ -1943,6 +2034,8 @@ public class Manager : MonoBehaviour
             planetaryNameTM.text = planetaryName;
             populationTM.text = GetNumHumans().ToString();
             planetPanel.transform.GetChild(3).gameObject.SetActive(false);
+            planetPanel.transform.GetChild(2).transform.GetChild(1).gameObject.SetActive(false); // deactivate plus sign for population add
+            planetPanel.transform.GetChild(2).transform.GetChild(2).gameObject.SetActive(false); // deactivate requirement for population add
         }
         else
         {
@@ -1950,9 +2043,13 @@ public class Manager : MonoBehaviour
             planetaryNameTM.text = "Planet " + index;
             populationTM.text = GetNumHumans(index).ToString();
             planetPanel.transform.GetChild(3).gameObject.SetActive(true);
-            spawnRateTM.text = "1";
-            rateOfFireTM.text = "1";
-            speedTM.text = "1";
+            planetPanel.transform.GetChild(2).transform.GetChild(1).gameObject.SetActive(true); // activate plus sign for population add
+            planetPanel.transform.GetChild(2).transform.GetChild(2).gameObject.SetActive(true); // activate requirement for population add
+            speedTM.text = humanPlanetSpeed[index].ToString();
+            rateOfFireTM.text = humanPlanetRateOfFire[index].ToString();
+            reqIncPopTM.text = requirementIncreasePopulation[index].ToString();
+            reqIncSpeedTM.text = requirementIncreaseSpeed[index].ToString();
+            reqIncROFTM.text = requirementIncreaseROF[index].ToString();
         }
         closeSlidersButton.gameObject.SetActive(true);
         openSlidersButton.gameObject.SetActive(false);
@@ -2605,7 +2702,7 @@ public class Manager : MonoBehaviour
     }
 
 
-    // ADD RESOURCES TO SLIDERS
+    // ADD RESOURCES
 
     public void AddMineralResource()
     {
@@ -2620,6 +2717,37 @@ public class Manager : MonoBehaviour
     public void AddGasResource()
     {
         gasResourcesSlider.value++;
+    }
+
+
+    public void AddMineralResourceAlien()
+    {
+        alienMineralResources++;
+        if (alienMineralResources > 15 && alienPlanets.Count > 0)
+        {
+            IncreaseAlienRateOfFire(alienPlanets[Random.Range(0, alienPlanets.Count)]);
+            alienMineralResources = 0;
+        }
+    }
+
+    public void AddIceResourceAlien()
+    {
+        alienIceResources++;
+        if (alienIceResources > 10 && alienPlanets.Count > 0)
+        {
+            AddAlien(alienPlanets[Random.Range(0, alienPlanets.Count)]);
+            alienIceResources = 0;
+        }
+    }
+
+    public void AddGasResourceAlien()
+    {
+        alienGasResources++;
+        if (alienGasResources > 15 && alienPlanets.Count > 0)
+        {
+            IncreaseAlienSpeed(alienPlanets[Random.Range(0, alienPlanets.Count)]);
+            alienGasResources = 0;
+        }
     }
 
 

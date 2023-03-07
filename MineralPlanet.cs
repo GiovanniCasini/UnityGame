@@ -15,17 +15,19 @@ public class MineralPlanet : MonoBehaviour
     public Sprite halfConsumedMineralPlanet;
     public Sprite consumedMineralPlanet;
     public bool firstTime = true;
+    private Manager manager;
 
     public void Start()
     {
         mineralResources = new List<GameObject>();
-        resources = (int)Mathf.Round(Random.Range(10, 50) / 10) * 10;
+        resources = (int)Mathf.Round(Random.Range(50, 150) / 10) * 10;
         startingResources = resources;
         resourcesText.text = resources.ToString();
         float s = Mathf.Log(resources, 10);
         transform.localScale = new Vector3(s, s, 0);
         startingScale = transform.localScale;
         startingResources = resources;
+        manager = FindObjectOfType<Manager>();
     }
 
     public void OnTriggerEnter2D(Collider2D collision)
@@ -54,6 +56,7 @@ public class MineralPlanet : MonoBehaviour
                 mineralResources[mineralResources.Count - 1].transform.parent = collision.transform;
                 collision.GetComponent<HarvestResourcesAlien>().mineralResource = true; ;
                 collision.GetComponent<HarvestResourcesAlien>().taken = true;
+                manager.AddMineralResourceAlien();
                 resources--;
                 resourcesText.text = resources.ToString();
                 float newScale = transform.localScale.x - 0.001f;
@@ -61,7 +64,7 @@ public class MineralPlanet : MonoBehaviour
             }
             else if (collision.tag != "Human" && collision.tag != "Alien" && collision.tag != "Bullet")
             {
-                FindObjectOfType<Manager>().planetsToHarvest.Remove(gameObject);
+                manager.planetsToHarvest.Remove(gameObject);
                 Destroy(gameObject);
             }
         }
@@ -70,7 +73,7 @@ public class MineralPlanet : MonoBehaviour
         {
             firstTime = false;
             GetComponent<SpriteRenderer>().sprite = consumedMineralPlanet;
-            FindObjectOfType<Manager>().EndHarvesting(gameObject);
+            manager.EndHarvesting(gameObject);
             tag = "EmptyResourcePlanet";
             //GetComponent<CircleCollider2D>().enabled = false;
             Destroy(transform.GetChild(0).GetComponent<Canvas>().transform.GetChild(2).gameObject);

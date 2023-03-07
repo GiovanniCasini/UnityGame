@@ -5,7 +5,7 @@ using UnityEngine;
 public class GoInFormationAlien : MonoBehaviour
 {
     public Vector2 coords;
-    public float InFormationVelocity = 2f;
+    public float InFormationVelocity = 1f;
 
     void Update()
     {

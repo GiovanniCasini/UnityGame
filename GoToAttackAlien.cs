@@ -7,7 +7,7 @@ public class GoToAttackAlien : MonoBehaviour
     public Vector2 coords;
     public Vector3 target;
     public Vector2 targetCoords;
-    public float attackingVelocity = 2f;
+    public float attackingVelocity = 1f;
     public Manager manager;
 
     private void Start()

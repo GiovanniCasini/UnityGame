@@ -8,6 +8,7 @@ public class CombatModeAlien : MonoBehaviour
     GameObject target;
     public GameObject bulletPrefab;
     public bool alreadyStarted = false;
+    public float rateOfFireAlien = 2f;
 
     void Awake()
     {
@@ -23,7 +24,7 @@ public class CombatModeAlien : MonoBehaviour
             bullet.GetComponent<SpriteRenderer>().color = Color.green;
             bullet.GetComponent<BulletMovement>().target = target;
         }
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSeconds(rateOfFireAlien);
         StartCoroutine(CheckForHumans());
     }
 
